@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tenantkeep Posture · Architecture: what gets installed, and where</title>
+<meta name="description" content="The complete inventory of what Tenantkeep Posture puts in your environment, per way of running it, and how to remove every piece.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23131E2E'/%3E%3Ctext x='32' y='45' font-family='Arial Narrow, Arial, sans-serif' font-size='38' font-weight='700' fill='%23D9480F' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="Tenantkeep home"><span class="k">Tenantkeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/">Home</a><a href="/#products">Products</a><a href="/how-it-works/">How it works</a><a href="/architecture/" aria-current="page">Architecture</a><a href="/guide/">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/">Licensing</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
+<main><article class="doc"><span class="eyebrow">Tenantkeep Posture</span><h1>What gets installed, and where</h1><p class="lede">The complete inventory, per way of running it: app registrations, identities and their roles, Azure resources, files on disk, and how to remove every piece.</p>
+<p>The complete inventory of what Tenantkeep Posture puts in a customer's environment, per way of running it, and how to
+remove every piece. Nothing on this page phones home; the only thing that ever leaves a tenant is nothing.</p>
+<h2 id="running-it-locally-no-azure-needed">Running it locally (no Azure needed)</h2>
+<p>An admin runs the module on their own machine with their own sign-in. Nothing is installed in the tenant except one
+app registration, and that only if the SharePoint collector is wanted.</p>
+<table>
+<thead>
+<tr>
+<th>Where</th>
+<th>What</th>
+<th>Why</th>
+<th>Remove</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The admin's machine</td>
+<td>The <code>Tenantkeep.Posture</code> PowerShell module, an evidence folder per run, a client folder per tenant (profile.json, brand.json, exceptions.json, findings.csv, tenantkeep.lic, imports/)</td>
+<td>Everything the report needs stays here</td>
+<td>Delete the folders</td>
+</tr>
+<tr>
+<td>Entra ID, app registrations</td>
+<td><strong>Tenantkeep Posture (SharePoint)</strong>: a public client with delegated permissions only (Graph User.Read, Sites.Read.All, Group.Read.All; SharePoint AllSites.FullControl, which is what PnP's tenant reads require)</td>
+<td>PnP.PowerShell needs an app id to sign the admin in; it acts as the admin, never on its own</td>
+<td>Delete the app registration</td>
+</tr>
+<tr>
+<td>Entra ID, roles on the admin</td>
+<td>Global Reader covers Entra, Intune and Defender reads; SharePoint Administrator for the SharePoint collector; View-Only Organization Management for Exchange; a Purview read role group for Purview; Reader and Security Reader on Azure subscriptions only if the Azure domain is wanted</td>
+<td>The module reads as the signed-in admin</td>
+<td>Standard role removal</td>
+</tr>
+<tr>
+<td>A domain-joined Windows machine, hybrid tenants only</td>
+<td>Nothing installed: <code>Get-ADBaseline.ps1</code> runs once as a domain user with RSAT and writes a folder</td>
+<td>The AD facts for the hybrid domain</td>
+<td>Delete the folder</td>
+</tr>
+</tbody>
+</table>
+<p>Azure is optional here. With <code>azure: none</code> in the profile, the Azure collector is skipped and the Azure domain reads
+as not applicable; no Azure role is needed.</p>
+<h2 id="running-it-on-a-schedule-the-customers-own-azure-subscription">Running it on a schedule (the customer's own Azure subscription)</h2>
+<p>The deployment puts one small resource group in the customer's subscription. It is the only Azure footprint, and it
+exists because the schedule needs somewhere to run as a managed identity instead of as a person.</p>
+<table>
+<thead>
+<tr>
+<th>Where</th>
+<th>What</th>
+<th>Why</th>
+<th>Remove</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Azure, resource group <code>rg-tenantkeep</code></td>
+<td>Automation account <code>aa-tenantkeep-&lt;env&gt;</code> with a system-assigned managed identity, a PowerShell 7.4 runtime environment holding the module and its dependencies, two runbooks (<code>Invoke-CaSnapshotCycle</code> nightly, <code>Invoke-PostureCycle</code> monthly), schedules, variables (container URLs, organisation, SharePoint admin URL, Purview app id and certificate URL, optional Teams webhook and email settings)</td>
+<td>Runs the cycles</td>
+<td>Delete the resource group</td>
+</tr>
+<tr>
+<td>Azure, same resource group</td>
+<td>Storage account with containers <code>ca-snapshots</code>, <code>posture-runs</code>, <code>client</code>, <code>modules</code>; shared-key access disabled, RBAC only</td>
+<td>Evidence, reports, the register, the client files, the module zips</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>Azure, same resource group</td>
+<td>Key Vault <code>kv-&lt;name&gt;</code> (RBAC, soft delete) holding one certificate, <code>tenantkeep-purview</code>, generated inside the vault</td>
+<td>Purview has no managed identity sign-in; the identity reads this certificate at run time</td>
+<td>Same; the app registration stops working the moment the vault is gone</td>
+</tr>
+<tr>
+<td>Azure RBAC</td>
+<td>On the storage account: Storage Blob Data Contributor to the identity (and to the deployer, for uploads). On the vault: Key Vault Secrets User to the identity, Certificates Officer to the deployer. On each subscription the Azure domain should cover: Reader and Security Reader to the identity</td>
+<td>Read access and nothing more</td>
+<td>Role assignment removal, or deleting the resource group for the first two</td>
+</tr>
+<tr>
+<td>Entra ID, the managed identity</td>
+<td>Graph application roles, all read: Policy, Directory, Group, User, AuditLog, authentication methods, role management, risk, device management, BitLocker key basics, attack simulation, access reviews, entitlement management, lifecycle workflows, PIM for Groups, administrative units, threat hunting, security incidents and events, Sites, Organization, Application, Reports. Exchange.ManageAsApp on Office 365 Exchange Online. Sites.FullControl.All on SharePoint Online. application_access on the Teams tenant admin API. The Global Reader directory role</td>
+<td>Each collector's reads as the identity</td>
+<td>Deleting the Automation account deletes the identity and every assignment with it</td>
+</tr>
+<tr>
+<td>Entra ID, app registrations</td>
+<td><strong>Tenantkeep Posture (Purview)</strong>: single-tenant, trusts the vault certificate, Exchange.ManageAsApp on Office 365 Exchange Online and on Microsoft Exchange Online Protection, Global Reader, and a Purview role group <strong>Tenantkeep Posture (view only)</strong> with View-Only Audit Logs, Insider Risk Management Audit and the view-only retention, DLP and information barrier roles</td>
+<td>App-only Purview reads</td>
+<td>Delete the app registration and the role group</td>
+</tr>
+<tr>
+<td>Entra ID, app registrations</td>
+<td><strong>Tenantkeep Posture (SharePoint)</strong>, as in the local table</td>
+<td>PnP sign-in for local runs by the same customer</td>
+<td>Delete it</td>
+</tr>
+<tr>
+<td>Optional, email alerts</td>
+<td>Mail.Send on the identity, restricted by an Exchange application access policy to one sender mailbox the customer names</td>
+<td>Change alerts and the monthly report by email</td>
+<td>Remove the role and the policy</td>
+</tr>
+<tr>
+<td>Optional, hybrid tenants</td>
+<td>The AD collector's files uploaded to <code>client/hybrid/</code> in the storage account; a Hybrid Runbook Worker on the AD box is the planned automation</td>
+<td>The hybrid domain in the scheduled report</td>
+<td>Delete the files</td>
+</tr>
+</tbody>
+</table>
+<p>Not in the customer's environment, ever: the licence signing key (Kainor's Key Vault), the Stripe webhook function
+(Kainor's tenant), the websites. The customer's deployment never contacts any of them.</p>
+<h2 id="removing-everything">Removing everything</h2>
+<ol>
+<li>Delete the resource group: the Automation account, its identity and every role assignment to it, the storage
+account with every run, the vault and the certificate.</li>
+<li>Delete the two app registrations and the Purview role group.</li>
+<li>Delete the client and evidence folders on the admin's machine.</li>
+</ol>
+<p>No residue remains: no agents, no scheduled tasks, no browser extensions, no DNS records, no mailboxes.</p>
+</article></main>
+<footer>
+  <div class="wrap">
+    <div class="foot-inner">
+      <span>© 2026 Kainor LLC. All rights reserved. Tenantkeep™ and LAPSlock™ are trademarks of Kainor LLC. Kainor LLC is not affiliated with, endorsed by, or sponsored by Microsoft Corporation; Microsoft, Microsoft Entra, Microsoft Intune, Microsoft Purview, Microsoft Defender and Microsoft 365 Copilot are trademarks of the Microsoft group of companies.</span>
+      <span class="foot-links">
+        <a href="/#products">Products</a>
+        <a href="/how-it-works/">How it works</a>
+        <a href="/architecture/">Architecture</a>
+        <a href="/guide/">Guide</a>
+        <a href="/catalog/">Check catalog</a>
+        <a href="/licensing/">Licensing</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="https://github.com/Kainor-LLC/tenantkeep-posture">GitHub</a>
+        <a href="https://kainor.com/privacy/">Privacy</a>
+        <a href="https://kainor.com/terms/">Terms</a>
+        <a href="mailto:connor@kainor.com">Contact</a>
+      </span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

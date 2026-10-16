@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
-<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="Tenantkeep home"><span class="k">Tenantkeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/">Home</a><a href="/#products">Products</a><a href="/how-it-works/">How it works</a><a href="/guide/" aria-current="page">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/">Licensing</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
+<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="Tenantkeep home"><span class="k">Tenantkeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/">Home</a><a href="/#products">Products</a><a href="/how-it-works/">How it works</a><a href="/architecture/">Architecture</a><a href="/guide/" aria-current="page">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/">Licensing</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
 <main><article class="doc"><span class="eyebrow">Tenantkeep Posture</span><h1>Using Tenantkeep Posture</h1><p class="lede">Everything below reads your tenant; nothing in the module writes to it. Each run leaves an evidence folder you keep, a report you deliver, and a risk register you work from until the next run.</p>
 <p>Written for the administrator or MSP engineer who runs the report. Everything below reads the tenant; nothing in the
 module writes to it. Each run leaves an evidence folder you keep, a report you deliver, and a findings register you
@@ -97,12 +97,24 @@ Profile changes apply on the next run; the page says so.</p>
 <p>One row per failing check in the audit plan's register format. Owners and statuses you type into the register survive
 the next export by check id. Accepted risks go into exceptions.json with an owner, approver and expiry; the next run
 marks them as accepted instead of failed.</p>
+<h2 id="b.reports-and-reviews-you-provide">8b. Reports and reviews you provide</h2>
+<p>A few Copilot readiness gates have no API behind them. Their check panels say exactly what to provide and link to the
+portal page: the data access governance CSV reports go into <code>imports/sam-dag/</code> in the client folder (the panel's Add
+Report Files button copies them there), and the portal reviews (DSPM for AI, Copilot settings, site access reviews)
+are dates you record in the panel or on the Settings view. Both count on the next run.</p>
 <h2 id="next-run-and-the-trend">9. Next run, and the trend</h2>
 <pre><code class="language-powershell">New-PostureReport -Evidence $newFolder -Client ~/tenantkeep/clients/contoso -Previous $folder
 </code></pre>
 <p>The Trend view shows the score and domain deltas, the checks that started or stopped failing, and the affected counts
 that moved. The Conditional Access snapshot in each folder also feeds Compare-PostureCaSnapshot for a policy-level
 diff, and the scheduled cycle in deploy/schedules runs that nightly with a Teams or email alert.</p>
+<h2 id="a.without-azure">9a. Without Azure</h2>
+<p>Not every organisation has, or wants, anything in Azure. Local runs need no Azure at all: with <code>azure: none</code> in the
+profile (the wizard sets it when no subscription is in scope) the Azure collector is skipped and the Azure domain
+reads as not applicable. Nothing is installed in the tenant beyond the SharePoint app registration. What does need
+an Azure subscription is the scheduled cycle, because the Automation account is where it runs; the full inventory of
+what that puts where is in docs/footprint.md. For a nightly Conditional Access cycle without Azure, the GitHub Action
+and launchd samples in deploy/schedules run it from a machine you already have.</p>
 <h2 id="unattended-in-the-customers-azure">10. Unattended, in the customer's Azure</h2>
 <p>deploy/automation deploys an Automation account with a managed identity that runs the Conditional Access cycle nightly
 and, with -IncludePosture, the whole posture report monthly: every collector, the trend, the findings register, with no
@@ -117,6 +129,7 @@ follow.</p>
       <span class="foot-links">
         <a href="/#products">Products</a>
         <a href="/how-it-works/">How it works</a>
+        <a href="/architecture/">Architecture</a>
         <a href="/guide/">Guide</a>
         <a href="/catalog/">Check catalog</a>
         <a href="/licensing/">Licensing</a>

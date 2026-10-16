@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
-<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="Tenantkeep home"><span class="k">Tenantkeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/">Home</a><a href="/#products">Products</a><a href="/how-it-works/" aria-current="page">How it works</a><a href="/guide/">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/">Licensing</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
+<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="Tenantkeep home"><span class="k">Tenantkeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/">Home</a><a href="/#products">Products</a><a href="/how-it-works/" aria-current="page">How it works</a><a href="/architecture/">Architecture</a><a href="/guide/">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/">Licensing</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
 <main><article class="doc"><span class="eyebrow">Tenantkeep Posture</span><h1>How it works</h1><p class="lede">One page for the person who has to reason about the whole thing: what runs where, as whom, reading what, writing where.</p>
 <p>One page for the person who has to reason about the whole thing: what runs where, as whom, reading what, writing
 where. The spec (posture-spec.md) says what the product is; this says how it is put together. Dated statements are
@@ -59,12 +59,12 @@ decisions; <code>(verify)</code> marks what has not been proven live yet.</p>
 </tr>
 <tr>
 <td>Licensing</td>
-<td><code>Tenantkeep.Posture/Private/Test-PostureLicense.ps1</code>, <code>deploy/licensing/</code>, private repo <code>kainorllc/tenantkeep-licensing</code></td>
+<td><code>Tenantkeep.Posture/Private/Test-PostureLicense.ps1</code>, <code>deploy/licensing/</code>, private repo <code>Kainor-LLC/tenantkeep-licensing</code></td>
 <td>A signed licence file per tenant, verified offline; issued by a Stripe-driven function in the Kainor tenant that signs through Key Vault.</td>
 </tr>
 <tr>
 <td>Websites</td>
-<td>repos <code>kainorllc/kainor.com</code>, <code>kainorllc/tenantkeep.app</code></td>
+<td>repos <code>Kainor-LLC/kainor.com</code>, <code>Kainor-LLC/tenantkeep.app</code></td>
 <td>Company site and the product family site (guide, generated catalog page).</td>
 </tr>
 </tbody>
@@ -154,23 +154,23 @@ or the <code>client/hybrid/</code> prefix (Automation). A Hybrid Runbook Worker 
 </thead>
 <tbody>
 <tr>
-<td>kainorllc/tenantkeep-posture</td>
+<td>Kainor-LLC/tenantkeep-posture</td>
 <td>source-available (currently private on GitHub; the licence assumes readers)</td>
 <td>the module, catalog, deployment, docs</td>
 </tr>
 <tr>
-<td>kainorllc/tenantkeep-licensing</td>
+<td>Kainor-LLC/tenantkeep-licensing</td>
 <td>private</td>
 <td>the issuing function</td>
 </tr>
 <tr>
-<td>kainorllc/tenantkeep.app, kainorllc/kainor.com</td>
-<td>private</td>
-<td>the websites</td>
+<td>Kainor-LLC/tenantkeep.app, Kainor-LLC/kainor.com</td>
+<td>public</td>
+<td>the websites, served by Cloudflare Pages (GitHub Pages does not allow purchase links)</td>
 </tr>
 <tr>
-<td>kainorllc/LAPSlock, kainorllc/tenantkeep-oncall</td>
-<td>private</td>
+<td>Kainor-LLC/LAPSlock (public), Kainor-LLC/tenantkeep-oncall (private)</td>
+<td></td>
 <td>the other products</td>
 </tr>
 </tbody>
@@ -183,6 +183,7 @@ or the <code>client/hybrid/</code> prefix (Automation). A Hybrid Runbook Worker 
       <span class="foot-links">
         <a href="/#products">Products</a>
         <a href="/how-it-works/">How it works</a>
+        <a href="/architecture/">Architecture</a>
         <a href="/guide/">Guide</a>
         <a href="/catalog/">Check catalog</a>
         <a href="/licensing/">Licensing</a>
