@@ -1,6 +1,6 @@
 # tenantkeep.app
 
-The Tenantkeep product site: static pages served by GitHub Pages from `docs/`, behind Cloudflare like kainor.com. Same
+The Tenantkeep product site: static pages in `docs/`, served by Cloudflare Pages (build output directory `docs`, no build step) like kainor.com. GitHub Pages is not used: it does not allow purchase links. Same
 design tokens and fonts as kainor.com (`docs/assets/site.css`).
 
 - `docs/index.html`: products, principles, pricing (the Stripe payment links), contact
