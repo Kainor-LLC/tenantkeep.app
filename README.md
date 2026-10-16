@@ -1,4 +1,4 @@
-# tenantkeep.com
+# tenantkeep.app
 
 The Tenantkeep product site: static pages served by GitHub Pages from `docs/`, behind Cloudflare like kainor.com. Same
 design tokens and fonts as kainor.com (`docs/assets/site.css`).
