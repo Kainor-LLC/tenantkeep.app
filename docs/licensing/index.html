@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tenantkeep Posture · Licensing</title>
+<meta name="description" content="How the signed licence file works, what the module checks, what it does not do.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23131E2E'/%3E%3Ctext x='32' y='45' font-family='Arial Narrow, Arial, sans-serif' font-size='38' font-weight='700' fill='%23D9480F' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="Tenantkeep home"><span class="k">Tenantkeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/">Home</a><a href="/#products">Products</a><a href="/how-it-works/">How it works</a><a href="/guide/">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/" aria-current="page">Licensing</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
+<main><article class="doc"><span class="eyebrow">Tenantkeep Posture</span><h1>Licensing</h1><p class="lede">Source-available, and the entitlement is a signed file verified offline. Nothing is sent anywhere to check it.</p>
+<p>Tenantkeep Posture is source-available (LICENSE.md) and its entitlement is a signed file, verified offline. Nothing is
+sent anywhere to check it. This page is for the customer who received one and for the reviewer who wants to know what
+the module does with it.</p>
+<h2 id="tiers">Tiers</h2>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>What it covers</th>
+<th>Licence needed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Free</td>
+<td><code>Export-PostureCaSnapshot</code>, <code>New-PostureCaDocument</code>, <code>Compare-PostureCaSnapshot</code>, the Conditional Access domain in any report, any number of tenants</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Tenantkeep CA</td>
+<td>The scheduled CA cycle (nightly snapshot, diff, alerts) in the customer's own automation</td>
+<td><code>ca</code></td>
+</tr>
+<tr>
+<td>Tenantkeep Posture</td>
+<td>Every domain in the report, the findings register, the trend, the framework crosswalks</td>
+<td><code>full</code></td>
+</tr>
+</tbody>
+</table>
+<p>Without a valid Full licence the report still generates: the Conditional Access domain is evaluated, every other
+check reads as not evaluated with the licence reason, and the report's header says so.</p>
+<h2 id="the-file">The file</h2>
+<p><code>tenantkeep.lic</code> is JSON: the licence fields, the id of the key that signed them, and an ECDSA P-256 signature over
+the canonical form of those fields (SHA-256, IEEE P1363). The fields are readable on purpose; the signature means none
+of them can change. Example shape:</p>
+<pre><code class="language-json">{
+  &quot;format&quot;: &quot;tenantkeep-licence/1&quot;,
+  &quot;licence&quot;: {
+    &quot;licenceId&quot;: &quot;…&quot;, &quot;product&quot;: &quot;tenantkeep&quot;, &quot;tenantId&quot;: &quot;&lt;tenant guid&gt;&quot;, &quot;tier&quot;: &quot;full&quot;,
+    &quot;customer&quot;: &quot;Contoso Ltd&quot;, &quot;issuedUtc&quot;: &quot;2026-10-15T00:00:00Z&quot;, &quot;expiresUtc&quot;: &quot;2027-11-15T00:00:00Z&quot;,
+    &quot;keyId&quot;: &quot;kainor-2026-10&quot;
+  },
+  &quot;algorithm&quot;: &quot;ES256&quot;,
+  &quot;signature&quot;: &quot;&lt;base64&gt;&quot;
+}
+</code></pre>
+<h2 id="what-the-module-checks">What the module checks</h2>
+<ol>
+<li>The key id names a public key built into the module (<code>Tenantkeep.Posture/Private/Test-PostureLicense.ps1</code>).
+The private keys live in Kainor's Azure Key Vault and never leave it.</li>
+<li>The signature verifies against the canonical fields. Any edit, including the tenant id, tier or expiry, fails here.</li>
+<li>The product is Tenantkeep and the tier is one the module knows.</li>
+<li>The tenant id matches the tenant recorded in the evidence folder (<code>collection.json</code>, else <code>metadata.json</code>), which
+the collector wrote from the signed-in Graph session. A licence for one tenant does nothing against another.</li>
+<li>The licence is not expired at the later of the current clock and the collection time, so a rolled-back clock does
+not revive it.</li>
+</ol>
+<p>Where the file is looked for, in order: <code>-LicensePath</code>, the <code>TENANTKEEP_LICENSE</code> environment variable, the client
+folder's <code>tenantkeep.lic</code> (next to profile.json), then <code>~/tenantkeep/tenantkeep.lic</code>. <code>Get-PostureLicense</code> shows the
+state of a file in plain words.</p>
+<h2 id="what-it-does-not-do">What it does not do</h2>
+<p>The module's source is published and it runs on your machine, so someone with the files can edit the verifier out.
+That is true of any published code, and it is what the licence terms, not the code, forbid. Signed releases make an
+edited module visibly unsigned; that is the detection, not a lock. There is no telemetry, no callback and no hidden
+check. What the signature guarantees is narrower and exact: a licence file cannot be forged, altered, or moved to a
+tenant it was not issued for.</p>
+<h2 id="hardening">Hardening</h2>
+<p>Published source cannot stop someone editing the files on their own machine. What it can do is make every bypass cost
+more edits, make the result visibly tampered, and make the deliverable say so. Four layers:</p>
+<ol>
+<li><strong>Signed release manifest.</strong> <code>build.ps1 -Task Integrity</code> writes <code>integrity.json</code>: the SHA-256 of every file in the
+module, signed with the licence key family. At import the module hashes itself and records one of three build
+states, printed in every report header and appendix:
+<code>Signed release &lt;version&gt;</code> (manifest present, trusted signature, every file matches);
+<code>Development build</code> (no manifest: a source checkout, including this repository as cloned);
+<code>Modified build</code> (a file was changed, added or removed, or the manifest signature fails). A modified build also
+shows a banner on the report cover. The label is a label, not a lock.</li>
+<li><strong>Authenticode and execution policy.</strong> Releases are Authenticode-signed. Where the module runs unattended (the
+Automation runbook, an MSP's jump host) set the execution policy to <code>AllSigned</code>: Windows then refuses to run an edited
+file at all. That enforcement is the operating system's, not ours, and it costs nothing.</li>
+<li><strong>Attribution.</strong> The licence id, customer and tier are in the report header and appendix, and every row of the
+findings register carries the licence id. A report that surfaces where it should not is attributable to one licence.</li>
+<li><strong>Verification where it is consumed.</strong> The engine, the report model and the findings export each verify the licence
+from its file rather than trusting a record made earlier, so a single edit is not enough.</li>
+</ol>
+<p>To produce a report that reads as a signed release while developing: <code>./build.ps1 -Task Build, Integrity -LicenseKeyPath &lt;pem&gt;</code> then <code>Import-Module ./out/Tenantkeep.Posture/&lt;version&gt;/Tenantkeep.Posture.psd1</code>.</p>
+<h2 id="issuing-kainor-side">Issuing (Kainor side)</h2>
+<p><code>deploy/licensing/New-PostureLicense.ps1</code> signs a licence with a local PEM (development) or through <code>az keyvault key sign</code> against the Key Vault key (production). The planned automation is an Azure Function in the Kainor tenant on the
+Stripe webhook: checkout completed and each renewal invoice paid produce a licence for the tenant id on the order and
+email it to the customer. Key rotation is a new key id in the module's table and a release; both keys verify for one
+release cycle.</p>
+</article></main>
+<footer>
+  <div class="wrap">
+    <div class="foot-inner">
+      <span>© 2026 Kainor LLC. All rights reserved. Tenantkeep™ and LAPSlock™ are trademarks of Kainor LLC. Kainor LLC is not affiliated with, endorsed by, or sponsored by Microsoft Corporation; Microsoft, Microsoft Entra, Microsoft Intune, Microsoft Purview, Microsoft Defender and Microsoft 365 Copilot are trademarks of the Microsoft group of companies.</span>
+      <span class="foot-links">
+        <a href="/#products">Products</a>
+        <a href="/how-it-works/">How it works</a>
+        <a href="/guide/">Guide</a>
+        <a href="/catalog/">Check catalog</a>
+        <a href="/licensing/">Licensing</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="https://github.com/kainorllc/tenantkeep-posture">GitHub</a>
+        <a href="https://kainor.com/privacy/">Privacy</a>
+        <a href="https://kainor.com/terms/">Terms</a>
+        <a href="mailto:connor@kainor.com">Contact</a>
+      </span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tenantkeep · Security posture reports for Microsoft 365, by Kainor</title>
+<meta name="description" content="Tenantkeep Posture turns a read-only collection from your Microsoft 365 tenant into a branded security posture report with a risk register, Copilot readiness, Conditional Access documentation and a diff of every change. Source-available, nothing leaves your tenant.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23131E2E'/%3E%3Ctext x='32' y='45' font-family='Arial Narrow, Arial, sans-serif' font-size='38' font-weight='700' fill='%23D9480F' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="topbar">
+      <a class="brand" href="/" aria-label="Tenantkeep home"><span class="k">Tenantkeep</span><span class="llc">by Kainor</span></a>
+      <nav aria-label="Site">
+        <a href="#products">Products</a>
+        <a href="/how-it-works/">How it works</a>
+        <a href="/guide/">Guide</a>
+        <a href="/catalog/">Check catalog</a>
+        <a href="/licensing/">Licensing</a>
+        <a href="#pricing">Pricing</a>
+        <a href="https://kainor.com">Kainor</a>
+      </nav>
+    </div>
+    <div class="hero-main" id="top">
+      <span class="eyebrow">By Kainor LLC · Microsoft 365 security posture</span>
+      <h1 class="display">The report your <span class="accent">Microsoft 365</span> security posture deserves</h1>
+      <p class="lede">Tenantkeep Posture reads your tenant, never writes to it, and turns the evidence into a branded report with a risk register, Copilot readiness gates, Conditional Access documented in plain English, and a diff of every change since last quarter. Source published. Nothing leaves your environment.</p>
+      <div class="hero-cta">
+        <a class="btn btn-solid" href="#pricing">See pricing</a>
+        <a class="btn btn-ghost" href="https://github.com/kainorllc/tenantkeep-posture">Source on GitHub</a>
+      </div>
+    </div>
+  </div>
+  <div class="timing" aria-hidden="true">
+    <div class="timing-inner">
+      <span class="t-cell">RUN <b>20261016-0240</b></span>
+      <span class="t-cell">COLLECTORS <b class="ok">8 OF 8</b></span>
+      <span class="t-cell">CHECKS <b>204</b></span>
+      <span class="t-cell">WRITES TO TENANT <b class="ok">0</b></span>
+      <span class="t-cell">LEFT THE TENANT <b class="ok">NOTHING</b></span>
+      <span class="t-cell">REPORT <b class="ok">READY</b></span>
+    </div>
+  </div>
+  <p class="timing-caption">The run that matters: sign in · read · evaluate · report. Your evidence stays in your storage, your exceptions stay in your folder.</p>
+</header>
+
+<main>
+  <section class="section" id="products">
+    <div class="wrap">
+      <span class="eyebrow">Products</span>
+      <h2 class="display">Three tools, one rule: read-only, nothing leaves</h2>
+      <div class="products">
+        <div class="product">
+          <span class="state">Available</span>
+          <h3>Tenantkeep Posture</h3>
+          <p>Thirteen domains, 204 checks, one interactive report. Identity, authentication, Conditional Access, devices, endpoint security, email, Purview, collaboration, Copilot readiness, governance, operations, Azure, hybrid AD. The risk register and the tenant settings live in the report itself and save back to your client folder.</p>
+          <div class="links"><a href="/guide/">Guide</a><a href="/catalog/">Catalog</a><a href="#pricing">Pricing</a></div>
+        </div>
+        <div class="product">
+          <span class="state">Available · free to run locally</span>
+          <h3>Tenantkeep CA</h3>
+          <p>Conditional Access documented in plain English, with a matrix of who gets what, and a diff of every change between two dates. Free on your machine for any number of tenants. Licensed as the nightly cycle in your own Azure with change alerts to Teams or email.</p>
+          <div class="links"><a href="/guide/">Guide</a><a href="#pricing">Pricing</a></div>
+        </div>
+        <div class="product">
+          <span class="state">In development</span>
+          <h3>Tenantkeep On-Call</h3>
+          <p>The on-call companion for the people who answer the phone when something breaks in Microsoft 365. Details when it ships.</p>
+          <div class="links"><a href="mailto:connor@kainor.com">Ask about it</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="principles">
+    <div class="wrap">
+      <span class="eyebrow">How we build</span>
+      <h2 class="display">Rules of the garage</h2>
+      <div class="rules">
+        <article class="rule"><h3>Read-only, always</h3><p>No cmdlet in the module writes to a tenant. The only tenant writes in the repository are the one-time setup scripts your own admin runs: an app registration, a consent, a role grant.</p></article>
+        <article class="rule"><h3>Nothing leaves your environment</h3><p>No telemetry, no callbacks, no licence server. The licence is a signed file verified offline against public keys built into the module. Evidence and reports stay in your folder or your storage account.</p></article>
+        <article class="rule"><h3>Your identities, your Azure</h3><p>Local runs use the signed-in admin. The scheduled cycle runs in an Automation account in your subscription with a managed identity and read-only roles you grant and can revoke.</p></article>
+        <article class="rule"><h3>Read it before you trust it</h3><p>The source is published. Every check is data you can read, every release is signed, and the report says which build produced it.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="pricing">
+    <div class="wrap">
+      <span class="eyebrow">Pricing</span>
+      <h2 class="display">Priced like the deliverable, not like an app</h2>
+      <p class="sec-sub">The Conditional Access tools are free to run locally. Everything else is a licence file per tenant, emailed to you within a minute of checkout and renewed automatically. Cancel any time; the licence runs to its expiry.</p>
+      <div class="plans four">
+      <section class="plan" aria-labelledby="plan-ca">
+        <span class="eyebrow">Tenantkeep CA</span>
+        <h3 id="plan-ca">Conditional Access, nightly</h3>
+        <div class="price"><span class="amt">$89</span><span class="per">/ year</span></div>
+        <p class="price-note">Billed annually · applicable sales tax added at checkout</p>
+        <ul><li>Nightly Conditional Access snapshot in your own Azure</li><li>Diff against the previous night, risk-relevant changes to Teams or email</li><li>White-label change reports and history</li><li>One tenant</li></ul>
+        <span class="spacer"></span>
+        <a class="buy" href="https://buy.stripe.com/7sY3cu5Qg3gT6EE6BU1VK07">Buy Tenantkeep CA · annual</a>
+        <span class="alt">or <a href="https://buy.stripe.com/fZu14mbaA5p13ss8K21VK06">$9 / month</a></span>
+      </section><section class="plan" aria-labelledby="plan-pro">
+        <span class="eyebrow">Posture Pro</span>
+        <h3 id="plan-pro">One admin or consultant</h3>
+        <div class="price"><span class="amt">$199</span><span class="per">/ year</span></div>
+        <p class="price-note">Billed annually · applicable sales tax added at checkout</p>
+        <ul><li>Every domain: identity, authentication, Conditional Access, devices, endpoint, email, Purview, collaboration, Copilot readiness, governance, operations, Azure, hybrid</li><li>Interactive report with the risk register and settings in the page</li><li>Trend against the previous run</li><li>One tenant at a time</li></ul>
+        <span class="spacer"></span>
+        <a class="buy" href="https://buy.stripe.com/4gMeVc4McaJl5AAbWe1VK09">Buy Posture Pro · annual</a>
+        <span class="alt">or <a href="https://buy.stripe.com/9B6aEWguUdVxd32e4m1VK08">$19 / month</a></span>
+      </section><section class="plan featured" aria-labelledby="plan-org">
+        <span class="eyebrow">Posture Organisation</span>
+        <h3 id="plan-org">An internal team</h3>
+        <div class="price"><span class="amt">$499</span><span class="per">/ year</span></div>
+        <p class="price-note">Billed annually · applicable sales tax added at checkout</p>
+        <ul><li>Everything in Pro</li><li>White label, your logo and colours</li><li>The scheduled cycle in your Azure: monthly report, nightly Conditional Access</li><li>One tenant</li></ul>
+        <span class="spacer"></span>
+        <a class="buy" href="https://buy.stripe.com/28EaEW7Yo7x93ssd0i1VK0b">Buy Posture Organisation · annual</a>
+        <span class="alt">or <a href="https://buy.stripe.com/eVq9AS6Uk18Lfba9O61VK0a">$49 / month</a></span>
+      </section><section class="plan" aria-labelledby="plan-msp">
+        <span class="eyebrow">Posture MSP</span>
+        <h3 id="plan-msp">Managed service providers</h3>
+        <div class="price"><span class="amt">$999</span><span class="per">/ year</span></div>
+        <p class="price-note">Billed annually · applicable sales tax added at checkout</p>
+        <ul><li>Everything in Organisation</li><li>Unlimited client tenants, one licence file each</li><li>Findings register re-import across quarters</li><li>Priority support</li></ul>
+        <span class="spacer"></span>
+        <a class="buy" href="https://buy.stripe.com/eVqfZg6UkdVxe761hA1VK0d">Buy Posture MSP · annual</a>
+        <span class="alt">or <a href="https://buy.stripe.com/dRmeVc5Qg9Fh1kk3pI1VK0c">$99 / month</a></span>
+      </section>
+      </div>
+      <p class="fine">Prices in US dollars. Enter your Microsoft 365 tenant ID at checkout; the licence is bound to it and nothing else. Invoice, purchase order or ACH: <a href="mailto:connor@kainor.com">ask</a>.</p>
+    </div>
+  </section>
+
+  <section class="section" id="contact">
+    <div class="wrap">
+      <span class="eyebrow">Contact</span>
+      <h2 class="display">Talk to the person who wrote it</h2>
+      <p class="lede">Kainor LLC, Spring Hill, Kansas. <a href="mailto:connor@kainor.com">connor@kainor.com</a> · <a href="https://github.com/kainorllc">github.com/kainorllc</a></p>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="wrap">
+    <div class="foot-inner">
+      <span>© 2026 Kainor LLC. All rights reserved. Tenantkeep™ and LAPSlock™ are trademarks of Kainor LLC. Kainor LLC is not affiliated with, endorsed by, or sponsored by Microsoft Corporation; Microsoft, Microsoft Entra, Microsoft Intune, Microsoft Purview, Microsoft Defender and Microsoft 365 Copilot are trademarks of the Microsoft group of companies.</span>
+      <span class="foot-links">
+        <a href="/#products">Products</a>
+        <a href="/how-it-works/">How it works</a>
+        <a href="/guide/">Guide</a>
+        <a href="/catalog/">Check catalog</a>
+        <a href="/licensing/">Licensing</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="https://github.com/kainorllc/tenantkeep-posture">GitHub</a>
+        <a href="https://kainor.com/privacy/">Privacy</a>
+        <a href="https://kainor.com/terms/">Terms</a>
+        <a href="mailto:connor@kainor.com">Contact</a>
+      </span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
