@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tenantkeep Posture · Consent</title>
+<meta name="description" content="The landing page for the admin consent to the Tenantkeep Posture application.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23131E2E'/%3E%3Ctext x='32' y='45' font-family='Arial Narrow, Arial, sans-serif' font-size='38' font-weight='700' fill='%23D9480F' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="Tenantkeep home"><span class="k">Tenantkeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/">Home</a><a href="/#products">Products</a><a href="/how-it-works/">How it works</a><a href="/architecture/">Architecture</a><a href="/guide/">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/">Licensing</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
+<main><article class="doc"><span class="eyebrow">Tenantkeep Posture</span><h1>Consent</h1><p class="lede">One consent per tenant, by an administrator, to a read-only application with no credentials. This page shows the result and nothing more.</p><p>If you came here from an admin consent prompt, the result is below. Nothing else happens on this page: no cookie, no script talks to anyone, the address bar is the only input.</p>
+<div id="consent-result" class="callout"><p>Reading the result from the address bar.</p></div>
+<h2>What you consented to</h2>
+<p>Tenantkeep Posture is a multi-tenant application published by Kainor LLC with delegated, read-only permissions and no credentials of its own. Every token it ever holds belongs to the administrator who signed in and goes no further than that administrator's roles. The full list of permissions is in the module's <code>app.json</code> and was on the consent screen. Remove the consent at any time by deleting the enterprise application in Entra ID; the next run says consent is needed.</p>
+<h2>Next</h2>
+<p>Go back to the terminal and run <code>Start-PostureRun</code> again. The sign-in now completes and the collection starts.</p>
+<script>
+(function () {
+  var q = new URLSearchParams(window.location.search);
+  var box = document.getElementById('consent-result');
+  var esc = function (t) { return String(t || '').replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); };
+  if (q.get('admin_consent') === 'True') {
+    box.className = 'callout ok';
+    box.innerHTML = '<p><strong>Consent recorded</strong> for tenant <code>' + esc(q.get('tenant')) + '</code>. You can close this window.</p>';
+  } else if (q.get('error')) {
+    box.className = 'callout warn';
+    box.innerHTML = '<p><strong>Consent did not complete:</strong> ' + esc(q.get('error')) + '. ' + esc(q.get('error_description')) + '</p><p>Only a Global Administrator, Privileged Role Administrator or Cloud Application Administrator can consent for the organisation.</p>';
+  } else {
+    box.innerHTML = '<p>No consent result in the address. An administrator consents from the link <code>Start-PostureRun</code> prints, or from the Entra admin center under Enterprise applications.</p>';
+  }
+})();
+</script></article></main>
+<footer>
+  <div class="wrap">
+    <div class="foot-inner">
+      <span>© 2026 Kainor LLC. All rights reserved. Tenantkeep™ and LAPSlock™ are trademarks of Kainor LLC. Kainor LLC is not affiliated with, endorsed by, or sponsored by Microsoft Corporation; Microsoft, Microsoft Entra, Microsoft Intune, Microsoft Purview, Microsoft Defender and Microsoft 365 Copilot are trademarks of the Microsoft group of companies.</span>
+      <span class="foot-links">
+        <a href="/#products">Products</a>
+        <a href="/how-it-works/">How it works</a>
+        <a href="/architecture/">Architecture</a>
+        <a href="/guide/">Guide</a>
+        <a href="/catalog/">Check catalog</a>
+        <a href="/licensing/">Licensing</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="https://github.com/Kainor-LLC/tenantkeep-posture">GitHub</a>
+        <a href="https://kainor.com/privacy/">Privacy</a>
+        <a href="https://kainor.com/terms/">Terms</a>
+        <a href="mailto:connor@kainor.com">Contact</a>
+      </span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

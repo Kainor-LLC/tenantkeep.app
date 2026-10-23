@@ -239,3 +239,6 @@
 .plan .alt{display:block;margin-top:10px;font-size:14px;color:var(--steel)}
 .plan .alt a{color:var(--signal)}
 nav a[aria-current]{text-decoration:underline;text-underline-offset:6px}
+.doc .callout{margin:18px 0;padding:14px 18px;border-left:4px solid #8A94A6;background:rgba(0,0,0,.04);border-radius:6px}
+.doc .callout.ok{border-left-color:#1E7F4F;background:rgba(30,127,79,.08)}
+.doc .callout.warn{border-left-color:#D9480F;background:rgba(217,72,15,.08)}

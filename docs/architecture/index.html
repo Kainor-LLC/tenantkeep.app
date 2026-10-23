@@ -17,8 +17,8 @@
 <p>The complete inventory of what Tenantkeep Posture puts in a customer's environment, per way of running it, and how to
 remove every piece. Nothing on this page phones home; the only thing that ever leaves a tenant is nothing.</p>
 <h2 id="running-it-locally-no-azure-needed">Running it locally (no Azure needed)</h2>
-<p>An admin runs the module on their own machine with their own sign-in. Nothing is installed in the tenant except one
-app registration, and that only if the SharePoint collector is wanted.</p>
+<p>An admin runs the module on their own machine with their own sign-in. Nothing is installed in the tenant except the
+consent record for the one app the sign-in goes through.</p>
 <table>
 <thead>
 <tr>
@@ -36,9 +36,15 @@ app registration, and that only if the SharePoint collector is wanted.</p>
 <td>Delete the folders</td>
 </tr>
 <tr>
-<td>Entra ID, app registrations</td>
-<td><strong>Tenantkeep Posture (SharePoint)</strong>: a public client with delegated permissions only (Graph User.Read, Sites.Read.All, Group.Read.All; SharePoint AllSites.FullControl, which is what PnP's tenant reads require)</td>
-<td>PnP.PowerShell needs an app id to sign the admin in; it acts as the admin, never on its own</td>
+<td>Entra ID, enterprise applications</td>
+<td><strong>Tenantkeep Posture</strong>: the consent record (service principal) for Kainor's multi-tenant public client. Delegated, read-only permissions only, listed in the module's app.json and on the consent screen: the Graph read scopes the collectors use, Exchange.Manage on Exchange Online and on Exchange Online Protection (Purview), AllSites.FullControl on SharePoint Online (what PnP's tenant reads require; it still acts as the admin), user_impersonation on the Teams tenant admin API and on Azure Service Management. No credentials exist for it anywhere</td>
+<td>One sign-in for every service; the app acts as the admin, never on its own</td>
+<td>Delete the enterprise application; the next run says consent is needed</td>
+</tr>
+<tr>
+<td>Entra ID, app registrations, optional</td>
+<td><strong>Tenantkeep Posture (SharePoint)</strong>: a customer-owned public client for the manual path without the Kainor app (Graph User.Read, Sites.Read.All, Group.Read.All; SharePoint AllSites.FullControl)</td>
+<td>PnP.PowerShell needs an app id to sign the admin in</td>
 <td>Delete the app registration</td>
 </tr>
 <tr>
@@ -107,9 +113,9 @@ exists because the schedule needs somewhere to run as a managed identity instead
 <td>Delete the app registration and the role group</td>
 </tr>
 <tr>
-<td>Entra ID, app registrations</td>
-<td><strong>Tenantkeep Posture (SharePoint)</strong>, as in the local table</td>
-<td>PnP sign-in for local runs by the same customer</td>
+<td>Entra ID, enterprise applications</td>
+<td><strong>Tenantkeep Posture</strong>, as in the local table, if the same customer also runs it locally</td>
+<td>The one sign-in for local runs</td>
 <td>Delete it</td>
 </tr>
 <tr>
@@ -132,7 +138,7 @@ exists because the schedule needs somewhere to run as a managed identity instead
 <ol>
 <li>Delete the resource group: the Automation account, its identity and every role assignment to it, the storage
 account with every run, the vault and the certificate.</li>
-<li>Delete the two app registrations and the Purview role group.</li>
+<li>Delete the Purview app registration and role group, and the Tenantkeep Posture enterprise application.</li>
 <li>Delete the client and evidence folders on the admin's machine.</li>
 </ol>
 <p>No residue remains: no agents, no scheduled tasks, no browser extensions, no DNS records, no mailboxes.</p>
