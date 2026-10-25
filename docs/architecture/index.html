@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tenantkeep Posture · Architecture: what gets installed, and where</title>
-<meta name="description" content="The complete inventory of what Tenantkeep Posture puts in your environment, per way of running it, and how to remove every piece.">
+<title>TenantKeep Posture · Architecture: what gets installed, and where</title>
+<meta name="description" content="The complete inventory of what TenantKeep Posture puts in your environment, per way of running it, and how to remove every piece.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23131E2E'/%3E%3Ctext x='32' y='45' font-family='Arial Narrow, Arial, sans-serif' font-size='38' font-weight='700' fill='%23D9480F' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,9 +12,9 @@
 <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
-<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="Tenantkeep home"><span class="k">Tenantkeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/">Home</a><a href="/#products">Products</a><a href="/how-it-works/">How it works</a><a href="/architecture/" aria-current="page">Architecture</a><a href="/guide/">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/">Licensing</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
-<main><article class="doc"><span class="eyebrow">Tenantkeep Posture</span><h1>What gets installed, and where</h1><p class="lede">The complete inventory, per way of running it: app registrations, identities and their roles, Azure resources, files on disk, and how to remove every piece.</p>
-<p>The complete inventory of what Tenantkeep Posture puts in a customer's environment, per way of running it, and how to
+<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="TenantKeep home"><span class="k">TenantKeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/">Home</a><a href="/#products">Products</a><a href="/how-it-works/">How it works</a><a href="/architecture/" aria-current="page">Architecture</a><a href="/guide/">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/">Licensing</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
+<main><article class="doc"><span class="eyebrow">TenantKeep Posture</span><h1>What gets installed, and where</h1><p class="lede">The complete inventory, per way of running it: app registrations, identities and their roles, Azure resources, files on disk, and how to remove every piece.</p>
+<p>The complete inventory of what TenantKeep Posture puts in a customer's environment, per way of running it, and how to
 remove every piece. Nothing on this page phones home; the only thing that ever leaves a tenant is nothing.</p>
 <h2 id="running-it-locally-no-azure-needed">Running it locally (no Azure needed)</h2>
 <p>An admin runs the module on their own machine with their own sign-in. Nothing is installed in the tenant except the
@@ -31,19 +31,19 @@ consent record for the one app the sign-in goes through.</p>
 <tbody>
 <tr>
 <td>The admin's machine</td>
-<td>The <code>Tenantkeep.Posture</code> PowerShell module, an evidence folder per run, a client folder per tenant (profile.json, brand.json, exceptions.json, findings.csv, tenantkeep.lic, imports/)</td>
+<td>The <code>TenantKeep.Posture</code> PowerShell module, an evidence folder per run, a client folder per tenant (profile.json, brand.json, exceptions.json, findings.csv, tenantkeep.lic, imports/)</td>
 <td>Everything the report needs stays here</td>
 <td>Delete the folders</td>
 </tr>
 <tr>
 <td>Entra ID, enterprise applications</td>
-<td><strong>Tenantkeep Posture</strong>: the consent record (service principal) for Kainor's multi-tenant public client. Delegated, read-only permissions only, listed in the module's app.json and on the consent screen: the Graph read scopes the collectors use, Exchange.Manage on Exchange Online and on Exchange Online Protection (Purview), AllSites.FullControl on SharePoint Online (what PnP's tenant reads require; it still acts as the admin), user_impersonation on the Teams tenant admin API and on Azure Service Management. No credentials exist for it anywhere</td>
+<td><strong>TenantKeep Posture</strong>: the consent record (service principal) for Kainor's multi-tenant public client. Delegated, read-only permissions only, listed in the module's app.json and on the consent screen: the Graph read scopes the collectors use, Exchange.Manage on Exchange Online and on Exchange Online Protection (Purview), AllSites.FullControl on SharePoint Online (what PnP's tenant reads require; it still acts as the admin), user_impersonation on the Teams tenant admin API and on Azure Service Management. No credentials exist for it anywhere</td>
 <td>One sign-in for every service; the app acts as the admin, never on its own</td>
 <td>Delete the enterprise application; the next run says consent is needed</td>
 </tr>
 <tr>
 <td>Entra ID, app registrations, optional</td>
-<td><strong>Tenantkeep Posture (SharePoint)</strong>: a customer-owned public client for the manual path without the Kainor app (Graph User.Read, Sites.Read.All, Group.Read.All; SharePoint AllSites.FullControl)</td>
+<td><strong>TenantKeep Posture (SharePoint)</strong>: a customer-owned public client for the manual path without the Kainor app (Graph User.Read, Sites.Read.All, Group.Read.All; SharePoint AllSites.FullControl)</td>
 <td>PnP.PowerShell needs an app id to sign the admin in</td>
 <td>Delete the app registration</td>
 </tr>
@@ -108,13 +108,13 @@ exists because the schedule needs somewhere to run as a managed identity instead
 </tr>
 <tr>
 <td>Entra ID, app registrations</td>
-<td><strong>Tenantkeep Posture (Purview)</strong>: single-tenant, trusts the vault certificate, Exchange.ManageAsApp on Office 365 Exchange Online and on Microsoft Exchange Online Protection, Global Reader, and a Purview role group <strong>Tenantkeep Posture (view only)</strong> with View-Only Audit Logs, Insider Risk Management Audit and the view-only retention, DLP and information barrier roles</td>
+<td><strong>TenantKeep Posture (Purview)</strong>: single-tenant, trusts the vault certificate, Exchange.ManageAsApp on Office 365 Exchange Online and on Microsoft Exchange Online Protection, Global Reader, and a Purview role group <strong>TenantKeep Posture (view only)</strong> with View-Only Audit Logs, Insider Risk Management Audit and the view-only retention, DLP and information barrier roles</td>
 <td>App-only Purview reads</td>
 <td>Delete the app registration and the role group</td>
 </tr>
 <tr>
 <td>Entra ID, enterprise applications</td>
-<td><strong>Tenantkeep Posture</strong>, as in the local table, if the same customer also runs it locally</td>
+<td><strong>TenantKeep Posture</strong>, as in the local table, if the same customer also runs it locally</td>
 <td>The one sign-in for local runs</td>
 <td>Delete it</td>
 </tr>
@@ -138,7 +138,7 @@ exists because the schedule needs somewhere to run as a managed identity instead
 <ol>
 <li>Delete the resource group: the Automation account, its identity and every role assignment to it, the storage
 account with every run, the vault and the certificate.</li>
-<li>Delete the Purview app registration and role group, and the Tenantkeep Posture enterprise application.</li>
+<li>Delete the Purview app registration and role group, and the TenantKeep Posture enterprise application.</li>
 <li>Delete the client and evidence folders on the admin's machine.</li>
 </ol>
 <p>No residue remains: no agents, no scheduled tasks, no browser extensions, no DNS records, no mailboxes.</p>
@@ -146,7 +146,7 @@ account with every run, the vault and the certificate.</li>
 <footer>
   <div class="wrap">
     <div class="foot-inner">
-      <span>© 2026 Kainor LLC. All rights reserved. Tenantkeep™ and LAPSlock™ are trademarks of Kainor LLC. Kainor LLC is not affiliated with, endorsed by, or sponsored by Microsoft Corporation; Microsoft, Microsoft Entra, Microsoft Intune, Microsoft Purview, Microsoft Defender and Microsoft 365 Copilot are trademarks of the Microsoft group of companies.</span>
+      <span>© 2026 Kainor LLC. All rights reserved. TenantKeep™ and LAPSlock™ are trademarks of Kainor LLC. Kainor LLC is not affiliated with, endorsed by, or sponsored by Microsoft Corporation; Microsoft, Microsoft Entra, Microsoft Intune, Microsoft Purview, Microsoft Defender and Microsoft 365 Copilot are trademarks of the Microsoft group of companies.</span>
       <span class="foot-links">
         <a href="/#products">Products</a>
         <a href="/how-it-works/">How it works</a>

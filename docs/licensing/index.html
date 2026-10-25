@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tenantkeep Posture · Licensing</title>
+<title>TenantKeep Posture · Licensing</title>
 <meta name="description" content="How the signed licence file works, what the module checks, what it does not do.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23131E2E'/%3E%3Ctext x='32' y='45' font-family='Arial Narrow, Arial, sans-serif' font-size='38' font-weight='700' fill='%23D9480F' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,9 +12,9 @@
 <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
-<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="Tenantkeep home"><span class="k">Tenantkeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/">Home</a><a href="/#products">Products</a><a href="/how-it-works/">How it works</a><a href="/architecture/">Architecture</a><a href="/guide/">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/" aria-current="page">Licensing</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
-<main><article class="doc"><span class="eyebrow">Tenantkeep Posture</span><h1>Licensing</h1><p class="lede">Source-available, and the entitlement is a signed file verified offline. Nothing is sent anywhere to check it.</p>
-<p>Tenantkeep Posture is source-available (PolyForm Shield 1.0.0, LICENSE.md) and its entitlement is a signed file, verified offline. Nothing is
+<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="TenantKeep home"><span class="k">TenantKeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/">Home</a><a href="/#products">Products</a><a href="/how-it-works/">How it works</a><a href="/architecture/">Architecture</a><a href="/guide/">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/" aria-current="page">Licensing</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
+<main><article class="doc"><span class="eyebrow">TenantKeep Posture</span><h1>Licensing</h1><p class="lede">Source-available, and the entitlement is a signed file verified offline. Nothing is sent anywhere to check it.</p>
+<p>TenantKeep Posture is source-available (PolyForm Shield 1.0.0, LICENSE.md) and its entitlement is a signed file, verified offline. Nothing is
 sent anywhere to check it. This page is for the customer who received one and for the reviewer who wants to know what
 the module does with it.</p>
 <h2 id="tiers">Tiers</h2>
@@ -33,12 +33,12 @@ the module does with it.</p>
 <td>none</td>
 </tr>
 <tr>
-<td>Tenantkeep CA</td>
+<td>TenantKeep CA</td>
 <td>The scheduled CA cycle (nightly snapshot, diff, alerts) in the customer's own automation</td>
 <td><code>ca</code></td>
 </tr>
 <tr>
-<td>Tenantkeep Posture</td>
+<td>TenantKeep Posture</td>
 <td>Every domain in the report, the findings register, the trend, the framework crosswalks</td>
 <td><code>full</code></td>
 </tr>
@@ -63,10 +63,10 @@ of them can change. Example shape:</p>
 </code></pre>
 <h2 id="what-the-module-checks">What the module checks</h2>
 <ol>
-<li>The key id names a public key built into the module (<code>Tenantkeep.Posture/Private/Test-PostureLicense.ps1</code>).
+<li>The key id names a public key built into the module (<code>TenantKeep.Posture/Private/Test-PostureLicense.ps1</code>).
 The private keys live in Kainor's Azure Key Vault and never leave it.</li>
 <li>The signature verifies against the canonical fields. Any edit, including the tenant id, tier or expiry, fails here.</li>
-<li>The product is Tenantkeep and the tier is one the module knows.</li>
+<li>The product is TenantKeep and the tier is one the module knows.</li>
 <li>The tenant id matches the tenant recorded in the evidence folder (<code>collection.json</code>, else <code>metadata.json</code>), which
 the collector wrote from the signed-in Graph session. A licence for one tenant does nothing against another.</li>
 <li>The licence is not expired at the later of the current clock and the collection time, so a rolled-back clock does
@@ -100,7 +100,7 @@ findings register carries the licence id. A report that surfaces where it should
 <li><strong>Verification where it is consumed.</strong> The engine, the report model and the findings export each verify the licence
 from its file rather than trusting a record made earlier, so a single edit is not enough.</li>
 </ol>
-<p>To produce a report that reads as a signed release while developing: <code>./build.ps1 -Task Build, Integrity -LicenseKeyPath &lt;pem&gt;</code> then <code>Import-Module ./out/Tenantkeep.Posture/&lt;version&gt;/Tenantkeep.Posture.psd1</code>.</p>
+<p>To produce a report that reads as a signed release while developing: <code>./build.ps1 -Task Build, Integrity -LicenseKeyPath &lt;pem&gt;</code> then <code>Import-Module ./out/TenantKeep.Posture/&lt;version&gt;/TenantKeep.Posture.psd1</code>.</p>
 <h2 id="issuing-kainor-side">Issuing (Kainor side)</h2>
 <p><code>deploy/licensing/New-PostureLicense.ps1</code> signs a licence with a local PEM (development) or through <code>az keyvault key sign</code> against the Key Vault key (production). The planned automation is an Azure Function in the Kainor tenant on the
 Stripe webhook: checkout completed and each renewal invoice paid produce a licence for the tenant id on the order and
@@ -110,7 +110,7 @@ release cycle.</p>
 <footer>
   <div class="wrap">
     <div class="foot-inner">
-      <span>© 2026 Kainor LLC. All rights reserved. Tenantkeep™ and LAPSlock™ are trademarks of Kainor LLC. Kainor LLC is not affiliated with, endorsed by, or sponsored by Microsoft Corporation; Microsoft, Microsoft Entra, Microsoft Intune, Microsoft Purview, Microsoft Defender and Microsoft 365 Copilot are trademarks of the Microsoft group of companies.</span>
+      <span>© 2026 Kainor LLC. All rights reserved. TenantKeep™ and LAPSlock™ are trademarks of Kainor LLC. Kainor LLC is not affiliated with, endorsed by, or sponsored by Microsoft Corporation; Microsoft, Microsoft Entra, Microsoft Intune, Microsoft Purview, Microsoft Defender and Microsoft 365 Copilot are trademarks of the Microsoft group of companies.</span>
       <span class="foot-links">
         <a href="/#products">Products</a>
         <a href="/how-it-works/">How it works</a>

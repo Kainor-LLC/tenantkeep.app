@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tenantkeep Posture · Using it, step by step</title>
+<title>TenantKeep Posture · Using it, step by step</title>
 <meta name="description" content="Step by step: install, one-time setup, sign in, collect, profile, evaluate, report, work the findings, trend, automation.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23131E2E'/%3E%3Ctext x='32' y='45' font-family='Arial Narrow, Arial, sans-serif' font-size='38' font-weight='700' fill='%23D9480F' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,19 +12,19 @@
 <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
-<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="Tenantkeep home"><span class="k">Tenantkeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/">Home</a><a href="/#products">Products</a><a href="/how-it-works/">How it works</a><a href="/architecture/">Architecture</a><a href="/guide/" aria-current="page">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/">Licensing</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
-<main><article class="doc"><span class="eyebrow">Tenantkeep Posture</span><h1>Using Tenantkeep Posture</h1><p class="lede">Everything below reads your tenant; nothing in the module writes to it. Each run leaves an evidence folder you keep, a report you deliver, and a risk register you work from until the next run.</p>
+<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="TenantKeep home"><span class="k">TenantKeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/">Home</a><a href="/#products">Products</a><a href="/how-it-works/">How it works</a><a href="/architecture/">Architecture</a><a href="/guide/" aria-current="page">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/">Licensing</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
+<main><article class="doc"><span class="eyebrow">TenantKeep Posture</span><h1>Using TenantKeep Posture</h1><p class="lede">Everything below reads your tenant; nothing in the module writes to it. Each run leaves an evidence folder you keep, a report you deliver, and a risk register you work from until the next run.</p>
 <p>Written for the administrator or MSP engineer who runs the report. Everything below reads the tenant; nothing in the
 module writes to it. Each run leaves an evidence folder you keep, a report you deliver, and a findings register you
 work from until the next run.</p>
 <h2 id="two-lines">1. Two lines</h2>
-<pre><code class="language-powershell">Install-Module Tenantkeep.Posture -Scope CurrentUser
+<pre><code class="language-powershell">Install-Module TenantKeep.Posture -Scope CurrentUser
 Start-PostureRun
 </code></pre>
 <p>A browser window asks you to sign in with an admin account. That is the only sign-in. The module gets a token for
 each service from it, runs every collector it can, builds the profile from what the tenant says about itself, writes
 the report and opens it. Twenty minutes later for a mid-sized tenant you are looking at report.html. Until the module
-is on the PowerShell Gallery, clone the repository and <code>Import-Module ./tenantkeep-posture/Tenantkeep.Posture/Tenantkeep.Posture.psd1</code>
+is on the PowerShell Gallery, clone the repository and <code>Import-Module ./TenantKeep-Posture/TenantKeep.Posture/TenantKeep.Posture.psd1</code>
 instead of the first line.</p>
 <p>What you need:</p>
 <ul>
@@ -38,7 +38,7 @@ older version runs with a warning, and every run records the versions it used in
 <li>An account that can read: Global Reader covers Entra, Intune and Defender; Exchange needs View-Only Organization
 Management; SharePoint needs SharePoint Administrator; Purview a compliance read role; Azure Reader and Security
 Reader on the subscriptions. The module never reads more than the account can.</li>
-<li>Consent, once per tenant. Tenantkeep Posture is a multi-tenant app published by Kainor with delegated, read-only
+<li>Consent, once per tenant. TenantKeep Posture is a multi-tenant app published by Kainor with delegated, read-only
 permissions (the list is in the module's app.json and on the consent screen). The first run in a tenant that has
 not consented stops and prints the admin consent link; an admin clicks it once, then runs the command again.</li>
 <li>Purview is the one service with a second sign-in. Security and Compliance PowerShell issues no token to a
@@ -122,7 +122,7 @@ diff, and the scheduled cycle in deploy/schedules runs that nightly with a Teams
 <h2 id="a.without-azure">9a. Without Azure</h2>
 <p>Not every organisation has, or wants, anything in Azure. Local runs need no Azure at all: with <code>azure: none</code> in the
 profile (the wizard sets it when no subscription is in scope) the Azure collector is skipped and the Azure domain
-reads as not applicable. Nothing is installed in the tenant beyond the consent to the Tenantkeep Posture app. What does need
+reads as not applicable. Nothing is installed in the tenant beyond the consent to the TenantKeep Posture app. What does need
 an Azure subscription is the scheduled cycle, because the Automation account is where it runs; the full inventory of
 what that puts where is in docs/footprint.md. For a nightly Conditional Access cycle without Azure, the GitHub Action
 and launchd samples in deploy/schedules run it from a machine you already have.</p>
@@ -161,7 +161,7 @@ permissions as app.json: <code>Connect-PostureSession -ClientId &lt;your app id&
 <footer>
   <div class="wrap">
     <div class="foot-inner">
-      <span>© 2026 Kainor LLC. All rights reserved. Tenantkeep™ and LAPSlock™ are trademarks of Kainor LLC. Kainor LLC is not affiliated with, endorsed by, or sponsored by Microsoft Corporation; Microsoft, Microsoft Entra, Microsoft Intune, Microsoft Purview, Microsoft Defender and Microsoft 365 Copilot are trademarks of the Microsoft group of companies.</span>
+      <span>© 2026 Kainor LLC. All rights reserved. TenantKeep™ and LAPSlock™ are trademarks of Kainor LLC. Kainor LLC is not affiliated with, endorsed by, or sponsored by Microsoft Corporation; Microsoft, Microsoft Entra, Microsoft Intune, Microsoft Purview, Microsoft Defender and Microsoft 365 Copilot are trademarks of the Microsoft group of companies.</span>
       <span class="foot-links">
         <a href="/#products">Products</a>
         <a href="/how-it-works/">How it works</a>
