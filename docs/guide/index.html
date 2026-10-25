@@ -30,13 +30,23 @@ instead of the first line.</p>
 <ul>
 <li>PowerShell 7.4 or later on macOS, Windows or Linux, and Microsoft.Graph.Authentication. For the other domains,
 the modules you already use: ExchangeOnlineManagement (Exchange and Purview), PnP.PowerShell (SharePoint),
-MicrosoftTeams, Az.Accounts with Az.ResourceGraph (Azure). A missing module is skipped with the install line.</li>
+MicrosoftTeams, Az.Accounts with Az.ResourceGraph (Azure). A missing module is skipped with the install line.
+<code>Get-PostureRequirement</code> lists what is installed against the versions the collectors were tested with
+(Graph 2.39, Exchange 3.10, PnP 3.2, Teams 7.9, Az.Accounts 5.5, Az.ResourceGraph 1.3 as of October 2026); an
+older version runs with a warning, and every run records the versions it used in collection.json. PnP.PowerShell
+2.12.0 is known to work except for the restricted search read behind the Copilot gate C9.</li>
 <li>An account that can read: Global Reader covers Entra, Intune and Defender; Exchange needs View-Only Organization
 Management; SharePoint needs SharePoint Administrator; Purview a compliance read role; Azure Reader and Security
 Reader on the subscriptions. The module never reads more than the account can.</li>
 <li>Consent, once per tenant. Tenantkeep Posture is a multi-tenant app published by Kainor with delegated, read-only
 permissions (the list is in the module's app.json and on the consent screen). The first run in a tenant that has
 not consented stops and prints the admin consent link; an admin clicks it once, then runs the command again.</li>
+<li>Purview is the one service with a second sign-in. Security and Compliance PowerShell issues no token to a
+third-party app, so when the Purview collector runs, the Exchange module opens its own window for the same admin
+(a device code with <code>-DeviceCode</code> or <code>-NoBrowser</code>). Everything else comes from the one sign-in.</li>
+<li>Conditional Access. A policy that blocks sign-ins to unapproved apps, or requires a compliant device, stops the run
+with the app id in the message. Allow the app or exclude the admin running the report; the module works around
+nothing.</li>
 </ul>
 <p>Useful switches: <code>-TenantId</code> refuses a sign-in to any other tenant; <code>-Collector Entra, Intune, Exchange</code> runs a
 subset; <code>-DeviceCode</code> signs in from a machine without a browser; <code>-Client</code> points at a client folder other than the

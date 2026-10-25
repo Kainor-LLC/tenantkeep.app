@@ -77,11 +77,12 @@ decisions; <code>(verify)</code> marks what has not been proven live yet.</p>
 <h2 id="a-run-end-to-end">A run, end to end</h2>
 <ol>
 <li><strong>Sign in.</strong> Locally, once: <code>Start-PostureRun</code> opens the browser for the admin's sign-in to the Tenantkeep Posture
-app, then gets a delegated token per service (Graph, Exchange, Purview, SharePoint, Teams, Azure) from the refresh
-token it holds in memory. <code>Connect-PostureService</code> is the only file in the module that opens a session, always with
-one of those tokens. Exchange and Purview run in a second process that receives access tokens over standard input
-and never the refresh token. In Automation, the account's managed identity signs in to everything except Purview
-(see Identities).</li>
+app, then gets a delegated token per service (Graph, Exchange, SharePoint, Teams, Azure) from the refresh token it
+holds in memory. <code>Connect-PostureService</code> is the only file in the module that opens a session, always with one of
+those tokens, except Purview: Security and Compliance PowerShell issues no delegated token to a third-party app, so
+the Exchange module signs the same admin in a second time with its own app. Exchange and Purview run in a second
+process that receives access tokens over standard input and never the refresh token. In Automation, the account's
+managed identity signs in to everything except Purview (see Identities).</li>
 <li><strong>Collect.</strong> <code>Invoke-PostureCollection</code> writes one evidence folder per run: JSON and CSV files named after the audit
 plan (<code>04-role-assignments-active.csv</code>, <code>exo-04-antiphish.json</code>, ...), a <code>collection.json</code> manifest with the tenant
 id, account, scopes, API versions and errors, and the Conditional Access snapshot. Every Graph call pins its API
@@ -125,8 +126,8 @@ customer's credential in the customer's vault.</li>
 <h2 id="licensing-and-integrity">Licensing and integrity</h2>
 <ul>
 <li>A licence is a small JSON file: tenant id, tier (<code>ca</code> or <code>full</code>), customer, issued and expiry dates, key id, and an
-ECDSA P-256 signature over the canonical fields. The module ships the public keys; the private key is in Kainor's
-Key Vault (<code>kv-tkp-lic-9195</code>) and never leaves it. Verification is offline and binds the licence to the tenant id
+ECDSA P-256 signature over the canonical fields. The module ships the public keys; the private key is in a Key Vault
+in Kainor's own tenant and never leaves it. Verification is offline and binds the licence to the tenant id
 the evidence recorded. The Conditional Access domain and the three CA cmdlets are free; everything else needs
 <code>full</code>. docs/licensing.md has the detail and the honest limits.</li>
 <li>Issuing is automatic: a Stripe payment link with a Tenant ID field, a webhook to an Azure Function in the Kainor
