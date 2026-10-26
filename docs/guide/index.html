@@ -18,14 +18,14 @@
 module writes to it. Each run leaves an evidence folder you keep, a report you deliver, and a findings register you
 work from until the next run.</p>
 <h2 id="two-lines">1. Two lines</h2>
-<pre><code class="language-powershell">Install-Module TenantKeep.Posture -Scope CurrentUser
+<pre><code class="language-powershell">Install-PSResource TenantKeep.Posture -Prerelease -Scope CurrentUser   # or Install-Module TenantKeep.Posture -AllowPrerelease
 Start-PostureRun
 </code></pre>
 <p>A browser window asks you to sign in with an admin account. That is the only sign-in. The module gets a token for
 each service from it, runs every collector it can, builds the profile from what the tenant says about itself, writes
-the report and opens it. Twenty minutes later for a mid-sized tenant you are looking at report.html. Until the module
-is on the PowerShell Gallery, clone the repository and <code>Import-Module ./TenantKeep-Posture/TenantKeep.Posture/TenantKeep.Posture.psd1</code>
-instead of the first line.</p>
+the report and opens it. Twenty minutes later for a mid-sized tenant you are looking at report.html. The module is a
+pre-release on the PowerShell Gallery, which is why the first line asks for pre-releases; from a clone of the
+repository, <code>Import-Module ./TenantKeep-Posture/TenantKeep.Posture/TenantKeep.Posture.psd1</code> replaces it.</p>
 <p>With a licence file, or a client folder somewhere other than the default, run <code>Initialize-PostureClient -LicensePath &lt;file&gt;</code> (or <code>-Path &lt;folder&gt; -ClientName '&lt;customer&gt;'</code>) once before the first run: it verifies the licence, copies it
 into the folder, seeds the profile with the tenant and prints the Start-PostureRun line to use.</p>
 <p>What you need:</p>
