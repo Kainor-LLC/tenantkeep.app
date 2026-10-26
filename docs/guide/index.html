@@ -26,6 +26,8 @@ each service from it, runs every collector it can, builds the profile from what 
 the report and opens it. Twenty minutes later for a mid-sized tenant you are looking at report.html. Until the module
 is on the PowerShell Gallery, clone the repository and <code>Import-Module ./TenantKeep-Posture/TenantKeep.Posture/TenantKeep.Posture.psd1</code>
 instead of the first line.</p>
+<p>With a licence file, or a client folder somewhere other than the default, run <code>Initialize-PostureClient -LicensePath &lt;file&gt;</code> (or <code>-Path &lt;folder&gt; -ClientName '&lt;customer&gt;'</code>) once before the first run: it verifies the licence, copies it
+into the folder, seeds the profile with the tenant and prints the Start-PostureRun line to use.</p>
 <p>What you need:</p>
 <ul>
 <li>PowerShell 7.4 or later on macOS, Windows or Linux, and Microsoft.Graph.Authentication. For the other domains,
