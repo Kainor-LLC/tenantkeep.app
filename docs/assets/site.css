@@ -242,3 +242,8 @@ nav a[aria-current]{text-decoration:underline;text-underline-offset:6px}
 .doc .callout{margin:18px 0;padding:14px 18px;border-left:4px solid #8A94A6;background:rgba(0,0,0,.04);border-radius:6px}
 .doc .callout.ok{border-left-color:#1E7F4F;background:rgba(30,127,79,.08)}
 .doc .callout.warn{border-left-color:#D9480F;background:rgba(217,72,15,.08)}
+.trial-form{display:grid;gap:.9rem;max-width:32rem;margin:1.5rem 0}
+.trial-form label{display:grid;gap:.35rem;font-weight:600}
+.trial-form input{font:inherit;padding:.6rem .7rem;border:1px solid currentColor;border-radius:6px;background:transparent;color:inherit}
+.trial-form button{font:inherit;font-weight:600;justify-self:start;padding:.65rem 1.1rem;border-radius:6px;border:0;background:#D9480F;color:#fff;cursor:pointer}
+.trial-form button[disabled]{opacity:.6;cursor:default}

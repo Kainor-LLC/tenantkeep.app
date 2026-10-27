@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TenantKeep Posture · Free trial</title>
+<meta name="description" content="A 30-day TenantKeep Posture licence for one tenant, sent to a work email in a domain the tenant owns.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23131E2E'/%3E%3Ctext x='32' y='45' font-family='Arial Narrow, Arial, sans-serif' font-size='38' font-weight='700' fill='%23D9480F' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="TenantKeep home"><span class="k">TenantKeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/">Home</a><a href="/#products">Products</a><a href="/how-it-works/">How it works</a><a href="/architecture/">Architecture</a><a href="/guide/">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/">Licensing</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
+<main><article class="doc"><span class="eyebrow">TenantKeep Posture</span><h1>Free trial</h1><p class="lede">Every domain, one tenant, thirty days.</p><p>Thirty days of every domain in the report, for one tenant, free. The Conditional Access domain needs no licence at all.</p>
+<h2>What you send, and why</h2>
+<ul><li><strong>Tenant id:</strong> the licence is bound to it. <code>Start-PostureRun</code> prints this page's link with it filled in.</li>
+<li><strong>Work email:</strong> the licence arrives there. Its domain must be one your tenant has verified, which is how we know the request comes from inside your organisation.</li>
+<li><strong>Organisation:</strong> the name the report prints on its cover.</li></ul>
+<p>That is all we keep: one row recording that this tenant had its trial. Nothing about your tenant is collected, now or when you run the module; verification of the licence is offline.</p>
+<div class="callout"><p>The trial form opens shortly. Until then, write to <a href="mailto:licensing@kainor.com?subject=TenantKeep%20Posture%20trial">licensing@kainor.com</a> with your tenant id and we will send a 30-day licence by hand.</p></div>
+<h2>When it arrives</h2>
+<p>Save the attachment, then run <code>Initialize-PostureClient -LicensePath &lt;file&gt;</code> once and <code>Start-PostureRun</code> as usual. One trial per tenant; reply to the email if you need longer.</p></article></main>
+<footer>
+  <div class="wrap">
+    <div class="foot-inner">
+      <span>© 2026 Kainor LLC. All rights reserved. TenantKeep™ and LAPSlock™ are trademarks of Kainor LLC. Kainor LLC is not affiliated with, endorsed by, or sponsored by Microsoft Corporation; Microsoft, Microsoft Entra, Microsoft Intune, Microsoft Purview, Microsoft Defender and Microsoft 365 Copilot are trademarks of the Microsoft group of companies.</span>
+      <span class="foot-links">
+        <a href="/#products">Products</a>
+        <a href="/how-it-works/">How it works</a>
+        <a href="/architecture/">Architecture</a>
+        <a href="/guide/">Guide</a>
+        <a href="/catalog/">Check catalog</a>
+        <a href="/licensing/">Licensing</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="https://github.com/Kainor-LLC/tenantkeep-posture">GitHub</a>
+        <a href="https://kainor.com/privacy/">Privacy</a>
+        <a href="https://kainor.com/terms/">Terms</a>
+        <a href="mailto:connor@kainor.com">Contact</a>
+      </span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
