@@ -36,7 +36,7 @@
     e.preventDefault();
     var d = new FormData(f), btn = f.querySelector('button');
     btn.disabled = true; box.hidden = false; box.textContent = 'Checking and sending...';
-    fetch('https://func-tkp-lic-c7w36xj7gjlug.azurewebsites.net/api/trial', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    fetch('https://func-tkp-lic-flex-c7w36xj7gjlug.azurewebsites.net/api/trial', { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tenantId: d.get('tenantId'), email: d.get('email'), customer: d.get('customer'), turnstile: d.get('cf-turnstile-response') }) })
       .then(function (r) { return r.json(); })
       .then(function (j) { box.textContent = j.message; if (!j.ok) { btn.disabled = false; if (window.turnstile) { turnstile.reset(); } } })

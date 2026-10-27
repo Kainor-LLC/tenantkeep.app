@@ -41,7 +41,7 @@ CONSENT = """<p>If you came here from an admin consent prompt, the result is bel
 </script>"""
 # The trial page. The Turnstile site key is public; it lives in templates/turnstile-site-key.txt once the widget exists in
 # Cloudflare. Without it the page says to email instead of showing a form that cannot pass the bot check.
-TRIAL_API = 'https://func-tkp-lic-c7w36xj7gjlug.azurewebsites.net/api/trial'
+TRIAL_API = 'https://func-tkp-lic-flex-c7w36xj7gjlug.azurewebsites.net/api/trial'
 _k = os.path.join(root, 'templates', 'turnstile-site-key.txt')
 SITE_KEY = open(_k).read().strip() if os.path.exists(_k) else ''
 TRIAL_FORM = """<form id="trial" class="trial-form" novalidate>
