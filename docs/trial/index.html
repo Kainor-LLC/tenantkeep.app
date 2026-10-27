@@ -19,7 +19,31 @@
 <li><strong>Work email:</strong> the licence arrives there. Its domain must be one your tenant has verified, which is how we know the request comes from inside your organisation.</li>
 <li><strong>Organisation:</strong> the name the report prints on its cover.</li></ul>
 <p>That is all we keep: one row recording that this tenant had its trial. Nothing about your tenant is collected, now or when you run the module; verification of the licence is offline.</p>
-<div class="callout"><p>The trial form opens shortly. Until then, write to <a href="mailto:licensing@kainor.com?subject=TenantKeep%20Posture%20trial">licensing@kainor.com</a> with your tenant id and we will send a 30-day licence by hand.</p></div>
+<form id="trial" class="trial-form" novalidate>
+<label>Tenant id<input name="tenantId" id="tenantId" required pattern="[0-9a-fA-F-]{36}" autocomplete="off" placeholder="00000000-0000-0000-0000-000000000000"></label>
+<label>Work email<input name="email" type="email" required autocomplete="email" placeholder="you@yourcompany.com"></label>
+<label>Organisation<input name="customer" required maxlength="120" autocomplete="organization" placeholder="Contoso Ltd"></label>
+<div class="cf-turnstile" data-sitekey="0x4AAAAAAFndM3A6XMYLUvu8"></div>
+<button type="submit">Send my trial licence</button>
+</form>
+<div id="trial-result" class="callout" hidden></div>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), f = document.getElementById('trial'), box = document.getElementById('trial-result');
+  if (q.get('tenant')) { document.getElementById('tenantId').value = q.get('tenant'); }
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var d = new FormData(f), btn = f.querySelector('button');
+    btn.disabled = true; box.hidden = false; box.textContent = 'Checking and sending...';
+    fetch('https://func-tkp-lic-c7w36xj7gjlug.azurewebsites.net/api/trial', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tenantId: d.get('tenantId'), email: d.get('email'), customer: d.get('customer'), turnstile: d.get('cf-turnstile-response') }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { box.textContent = j.message; if (!j.ok) { btn.disabled = false; if (window.turnstile) { turnstile.reset(); } } })
+      .catch(function () { box.textContent = 'The request did not reach us. Write to licensing@kainor.com and we will send the trial by hand.'; btn.disabled = false; });
+  });
+})();
+</script>
 <h2>When it arrives</h2>
 <p>Save the attachment, then run <code>Initialize-PostureClient -LicensePath &lt;file&gt;</code> once and <code>Start-PostureRun</code> as usual. One trial per tenant; reply to the email if you need longer.</p></article></main>
 <footer>
