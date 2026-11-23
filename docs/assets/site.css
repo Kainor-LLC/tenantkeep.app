@@ -268,6 +268,9 @@ nav a[aria-current]{text-decoration:underline;text-underline-offset:6px}
 .summary p + p{margin-top:10px}
 
 /* guide and architecture pages: screenshots, and flows that turn on their side on a phone */
+/* A picture written as plain Markdown, which is how Posture's pages arrive: it fits the column and is framed like a wide shot. */
+.doc img{max-width:100%;height:auto}
+.doc p>img{display:block;margin:18px 0;border:1px solid var(--line);border-radius:14px;background:var(--card);box-shadow:0 8px 22px rgba(19,30,46,.10)}
 .doc .shots{display:flex;flex-wrap:wrap;align-items:flex-start;gap:22px;margin:18px 0 22px}
 .doc figure.shot{margin:0;flex:0 1 250px;min-width:0}
 .doc figure.shot.wide{flex:1 1 100%}
