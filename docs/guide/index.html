@@ -14,7 +14,7 @@
 <body>
 <header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="TenantKeep home"><span class="k">TenantKeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/on-call/">On-Call</a><a href="/posture/" aria-current="page">Posture</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
 <nav class="subnav" aria-label="TenantKeep Posture"><div class="wrap"><a href="/posture/">Overview</a><a href="/posture/sample-report/">Sample report</a><a href="/guide/" aria-current="page">Guide</a><a href="/how-it-works/">How it works</a><a href="/architecture/">Architecture</a><a href="/catalog/">Catalog</a><a href="/posture/#pricing">Pricing</a><a href="/trial/">Free trial</a><a href="/licensing/">Licensing</a></div></nav>
-<main><article class="doc"><span class="eyebrow">TenantKeep Posture</span><h1>Using TenantKeep Posture</h1><p class="lede">Everything below reads your tenant; nothing in the module writes to it. Each run leaves an evidence folder you keep, a report you deliver, and a risk register you work from until the next run.</p>
+<main><article class="doc"><span class="eyebrow">TenantKeep Posture</span><h1>Using TenantKeep Posture</h1><p class="lede">From the first run to the scheduled one, step by step, with pictures of the report it produces.</p>
 <p>Written for the administrator or MSP engineer who runs the report. Everything below reads the tenant; nothing in the
 module writes to it. Each run leaves an evidence folder you keep, a report you deliver, and a findings list you
 work from until the next run.</p>
@@ -27,6 +27,10 @@ each service from it, runs every collector it can, builds the profile from what 
 the report and opens it. Twenty minutes later for a mid-sized tenant you are looking at report.html. The module is a
 pre-release on the PowerShell Gallery, which is why the first line asks for pre-releases; from a clone of the
 repository, <code>Import-Module ./TenantKeep-Posture/TenantKeep.Posture/TenantKeep.Posture.psd1</code> replaces it.</p>
+<div class="shots">
+  <figure class="shot wide"><a href="/posture/sample-report/#overview"><img src="/assets/posture/report-overview.jpg" width="1400" height="940" loading="lazy" alt="The overview of a report: what the assessment still lacks, the posture score, open findings by severity and the shortest attack path."></a><figcaption>What opens when the run finishes. Every picture on this page is from the sample report of a made-up tenant, Fernquill Engineering; select one to open that view in the report.</figcaption></figure>
+</div>
+<p>The whole sample report is at <a href="/posture/sample-report/">tenantkeep.app/posture/sample-report</a>: open it and click around.</p>
 <p>With a licence file, or a client folder somewhere other than the default, run <code>Initialize-PostureClient -LicensePath &lt;file&gt;</code> (or <code>-Path &lt;folder&gt; -ClientName '&lt;customer&gt;'</code>) once before the first run: it verifies the licence, copies it
 into the folder, seeds the profile with the tenant and prints the Start-PostureRun line to use.</p>
 <p>What you need:</p>
@@ -170,17 +174,42 @@ explained in docs/profile.md.</p>
 <p>Writes report.html (self-contained, interactive), report.md and checks.json into the folder. Pick a baseline with
 <code>-Baseline nist-csf-2</code> (or iso-27001-2022, nist-800-171, cmmc-2, cisa-scuba, hipaa, copilot-readiness) to narrow the
 checks and add the crosswalk appendix. Add <code>-Format Pdf</code> for a PDF through a headless Edge or Chrome.</p>
+<div class="shots">
+  <figure class="shot wide"><a href="/posture/sample-report/#recommendations"><img src="/assets/posture/report-recommendations.jpg" width="1400" height="940" loading="lazy" alt="The Recommendations view: Do Today, a list of quick fixes with their severity and what users will notice."></a><figcaption>Recommendations: what to fix, most urgent first, starting with the fixes users will not notice.</figcaption></figure>
+</div>
+<div class="shots">
+  <figure class="shot wide"><a href="/posture/sample-report/#domains"><img src="/assets/posture/report-domains.jpg" width="1400" height="940" loading="lazy" alt="The Domains view: a scorecard for each area, with how many checks pass, fail, are accepted or covered."></a><figcaption>Domains: a score for each area, and the checks behind it.</figcaption></figure>
+</div>
 <p>The ATT&amp;CK Coverage view lays the run over MITRE ATT&amp;CK: under each tactic, the techniques the checks address, each a
 gap (a check for it fails), accepted risk, covered (its checks pass) or not checked (no check for it could be
 evaluated). Checks the profile rules out are left out, so a cloud-only tenant sees no Kerberos techniques. Covered
 lowers the risk; it does not prove a technique cannot be used. Finding cards, findings.csv, findings.json and report.md
 carry each check's technique ids.</p>
+<div class="shots">
+  <figure class="shot wide"><a href="/posture/sample-report/#attack"><img src="/assets/posture/report-attack.jpg" width="1400" height="940" loading="lazy" alt="The ATT&CK Coverage view: techniques under each tactic, marked as a gap, accepted, covered or not checked."></a><figcaption>ATT&amp;CK Coverage: the techniques the checks address, tactic by tactic.</figcaption></figure>
+</div>
+<p>Three more views are built from the same evidence: who holds which role and how they sign in, whether the tenant is ready for Copilot, and what the tenant contains.</p>
+<div class="shots">
+  <figure class="shot wide"><a href="/posture/sample-report/#admins"><img src="/assets/posture/report-admins.jpg" width="1400" height="940" loading="lazy" alt="Your Administrators: each role holder with permanent and eligible roles, strongest sign-in method and last sign-in."></a><figcaption>Your Administrators: every role holder, how each signs in, and when they last did.</figcaption></figure>
+</div>
+<div class="shots">
+  <figure class="shot wide"><a href="/posture/sample-report/#copilot"><img src="/assets/posture/report-copilot.jpg" width="1400" height="940" loading="lazy" alt="The Copilot Readiness view: gates for oversharing, labelling and governance, each open or closed."></a><figcaption>Copilot Readiness: the gates to pass before Copilot reaches your data.</figcaption></figure>
+</div>
+<div class="shots">
+  <figure class="shot wide"><a href="/posture/sample-report/#ca"><img src="/assets/posture/report-ca.jpg" width="1400" height="940" loading="lazy" alt="The Conditional Access view: a matrix of policies against who and what each applies to."></a><figcaption>Conditional Access: every policy against who it applies to, and what it asks of them.</figcaption></figure>
+</div>
+<div class="shots">
+  <figure class="shot wide"><a href="/posture/sample-report/#inventory"><img src="/assets/posture/report-inventory.jpg" width="1400" height="940" loading="lazy" alt="The Inventory view: counts and lists of what the tenant holds, from policies to connectors."></a><figcaption>Inventory: what the tenant holds, as lists you can read and search.</figcaption></figure>
+</div>
 <h2 id="work-the-findings">8. Work the findings</h2>
 <p>report.html opens in any browser and changes nothing: select a check for what was found, why it matters, how to fix
 it and the affected objects, with links to the portal page and Microsoft Learn. findings.csv in the run folder is the
 same list as a spreadsheet, most severe first, rebuilt on every run for whoever tracks remediation in their own tool:</p>
 <pre><code class="language-powershell">Export-PostureFindings -Path $folder
 </code></pre>
+<div class="shots">
+  <figure class="shot wide"><a href="/posture/sample-report/#checks"><img src="/assets/posture/report-checks.jpg" width="1400" height="940" loading="lazy" alt="The Checks Explorer: every check with its domain, title, status, severity and how many objects it affects, with filters above."></a><figcaption>Checks Explorer: every check, filtered by status, domain or severity. Select one for what was found and how to fix it.</figcaption></figure>
+</div>
 <p>Two views in Recommendations answer two different questions. The Roadmap lanes sort the findings by risk and effort:
 what matters most. The Remediation Plan under them puts the work in order: the checks are grouped into projects, and a
 flow chart shows which projects can start now, side by side, and which wait on another, with a solid arrow where one
@@ -239,6 +268,9 @@ how many files), not collected (the Overview's &quot;To Complete This Assessment
 not needed here, with the kind of tenant that would need it. The on-premises domain and the SharePoint site
 permissions report are the two that are collected somewhere else and brought in; a tenant that needs neither is
 told so, not left to wonder.</p>
+<div class="shots">
+  <figure class="shot wide"><a href="/posture/sample-report/#health"><img src="/assets/posture/report-health.jpg" width="1400" height="940" loading="lazy" alt="The Run Health view: each source of evidence and whether it was collected, with the steps that failed and why."></a><figcaption>Run Health: what was collected, what was not, and what each failed step needs.</figcaption></figure>
+</div>
 <p>A step that fails is recorded with its cause: needs a role, needs a licence, sign-in ran out, throttled, network,
 not readable with this sign-in, or not set up in this tenant. The console ends with the failures grouped by cause and what to do, the report opens
 with a banner, and its Run Health view lists each step with the role, delegated permission or licence it needs
@@ -300,6 +332,9 @@ reason it is there: the goals it covers, what it brings, and when another licenc
 (ID Governance needs Entra ID P1). It also says what a move takes the place of, what stays, what overlaps with a
 product named in the profile's <code>thirdParty</code>, and which licences the tenant holds today where one includes all of
 another.</p>
+<div class="shots">
+  <figure class="shot wide"><a href="/posture/sample-report/#licensing"><img src="/assets/posture/report-licensing.jpg" width="1400" height="940" loading="lazy" alt="The Licensing view: what to add for the chosen goals, the seats assigned per licence, and the features owned."></a><figcaption>Licensing: the goals the licences cover, and what to add for the rest.</figcaption></figure>
+</div>
 <p>How the one combination is chosen. Every combination that works is built from the rules in <code>licensing/</code>: it covers
 every chosen goal, brings what its own licences need first, and takes away no goal the tenant meets today. Then:</p>
 <ul>

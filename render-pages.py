@@ -5,10 +5,19 @@
 import os, re
 from site_shell import root, HEAD, FOOT, nav, page
 w = os.path.join(root, '.work')
-page(os.path.join(root, 'docs', 'guide', 'index.html'), 'TenantKeep Posture · Using it, step by step', 'Step by step: install, one-time setup, sign in, collect, profile, evaluate, report, work the findings, trend, automation.', 'Using TenantKeep Posture', 'Everything below reads your tenant; nothing in the module writes to it. Each run leaves an evidence folder you keep, a report you deliver, and a risk register you work from until the next run.', open(os.path.join(w, 'guide.fragment.html')).read(), '/guide/')
-page(os.path.join(root, 'docs', 'licensing', 'index.html'), 'TenantKeep Posture · Licensing', 'How the signed licence file works, what the module checks, what it does not do.', 'Licensing', 'Source-available, and the entitlement is a signed file verified offline. Nothing is sent anywhere to check it.', open(os.path.join(w, 'licensing.fragment.html')).read(), '/licensing/')
-page(os.path.join(root, 'docs', 'how-it-works', 'index.html'), 'TenantKeep Posture · How it works', 'What runs where, as whom, reading what, writing where.', 'How it works', 'One page for the person who has to reason about the whole thing: what runs where, as whom, reading what, writing where.', open(os.path.join(w, 'architecture.fragment.html')).read(), '/how-it-works/')
-page(os.path.join(root, 'docs', 'architecture', 'index.html'), 'TenantKeep Posture · Architecture: what runs where, and what gets installed', 'What runs where and as whom in TenantKeep Posture, what it reads, what leaves your tenant, and the complete inventory of what it installs, with how to remove every piece.', 'What Runs Where, and What Gets Installed', 'What runs where and as whom, what it reads, and what leaves your tenant, which is nothing.', open(os.path.join(w, 'footprint.fragment.html')).read(), '/architecture/')
+def frag(name):
+    # A page's body as update-pages.ps1 converted it from the posture repository's Markdown. A picture is written there
+    # with its full address on this site, so that it also shows where the Markdown is read on GitHub; here it becomes
+    # a path on this site, which the local preview serves too, and a picture that is not in docs/ stops the render.
+    # A link to another page of this site is written the same way and becomes a path the same way.
+    text = open(os.path.join(w, name + '.fragment.html'), encoding='utf-8').read().replace('src="https://tenantkeep.app/assets/', 'src="/assets/').replace('href="https://tenantkeep.app/', 'href="/')
+    for src in re.findall(r'<img[^>]* src="/([^"]+)"', text):
+        assert os.path.isfile(os.path.join(root, 'docs', src)), (name, 'picture not found', src)
+    return text
+page(os.path.join(root, 'docs', 'guide', 'index.html'), 'TenantKeep Posture · Using it, step by step', 'Step by step: install, one-time setup, sign in, collect, profile, evaluate, report, work the findings, trend, automation.', 'Using TenantKeep Posture', 'From the first run to the scheduled one, step by step, with pictures of the report it produces.', frag('guide'), '/guide/')
+page(os.path.join(root, 'docs', 'licensing', 'index.html'), 'TenantKeep Posture · Licensing', 'How the signed licence file works, what the module checks, what it does not do.', 'Licensing', 'Source-available, and the entitlement is a signed file verified offline. Nothing is sent anywhere to check it.', frag('licensing'), '/licensing/')
+page(os.path.join(root, 'docs', 'how-it-works', 'index.html'), 'TenantKeep Posture · How it works', 'What runs where, as whom, reading what, writing where.', 'How it works', 'One page for the person who has to reason about the whole thing: what runs where, as whom, reading what, writing where.', frag('architecture'), '/how-it-works/')
+page(os.path.join(root, 'docs', 'architecture', 'index.html'), 'TenantKeep Posture · Architecture: what runs where, and what gets installed', 'What runs where and as whom in TenantKeep Posture, what it reads, what leaves your tenant, and the complete inventory of what it installs, with how to remove every piece.', 'What Runs Where, and What Gets Installed', 'What runs where and as whom, what it reads, and what leaves your tenant, which is nothing.', frag('footprint'), '/architecture/')
 # The trial page. The Turnstile site key is public; it lives in templates/turnstile-site-key.txt once the widget exists in
 # Cloudflare. Without it the page says to email instead of showing a form that cannot pass the bot check.
 TRIAL_API = 'https://func-tkp-lic-flex-c7w36xj7gjlug.azurewebsites.net/api/trial'
