@@ -184,3 +184,7 @@ def reshell(name, section='posture'):
 for name in ('guide', 'licensing', 'how-it-works', 'architecture', 'catalog', 'trial'):
     reshell(name)
 print('reshelled posture: guide, licensing, how-it-works, architecture, catalog, trial')
+# Added for Posture: its security review page, rendered by render-pages.py from the posture repository like the six above.
+if os.path.isfile(os.path.join(root, 'docs', 'security', 'index.html')):
+    reshell('security')
+    print('reshelled posture: security')

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TenantKeep Posture · Security review</title>
+<meta name="description" content="For the security team deciding whether an administrator may run TenantKeep Posture: what it reads, as whom, where results go, how read-only is enforced, and how to check a run in your own audit logs.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23131E2E'/%3E%3Ctext x='32' y='45' font-family='Arial Narrow, Arial, sans-serif' font-size='38' font-weight='700' fill='%23D9480F' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="TenantKeep home"><span class="k">TenantKeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/on-call/">On-Call</a><a href="/posture/" aria-current="page">Posture</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
+<nav class="subnav" aria-label="TenantKeep Posture"><div class="wrap"><a href="/posture/">Overview</a><a href="/posture/sample-report/">Sample report</a><a href="/guide/">Guide</a><a href="/how-it-works/">How it works</a><a href="/architecture/">Architecture</a><a href="/catalog/">Catalog</a><a href="/posture/#pricing">Pricing</a><a href="/trial/">Free trial</a><a href="/licensing/">Licensing</a></div></nav>
+<main><article class="doc"><span class="eyebrow">TenantKeep Posture</span><h1>Security Review</h1><p class="lede">One page for the people who approve tools: the questions they ask, the answers, and how to verify each one in your own tenant.</p>
+<p>For the security team deciding whether an administrator may run TenantKeep Posture against your Microsoft 365
+tenant. It says what the tool reads, as whom, where the results go, how read-only is enforced, and how you can check a
+run afterwards in your own logs. Everything here can be confirmed in the source, which is public.</p>
+<h2 id="the-short-answers">The short answers</h2>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Answer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Does it change anything in the tenant?</td>
+<td>No. Every request is a read. The module has no code path that writes, and its tests fail the build if one appears.</td>
+</tr>
+<tr>
+<td>Does any data leave your environment?</td>
+<td>No. The report and the evidence are files on the machine that runs it. There is no telemetry, no analytics and no licence server: the licence is a signed file checked offline.</td>
+</tr>
+<tr>
+<td>Does it store credentials?</td>
+<td>No. It signs in as the administrator running it, with delegated permissions, and keeps the tokens in memory for the run. The apps it signs in to have no secrets or certificates.</td>
+</tr>
+<tr>
+<td>Can it act on its own?</td>
+<td>No. Every token belongs to the signed-in administrator and is bounded by that person's own roles. The optional Azure Automation deployment runs as a managed identity in your subscription.</td>
+</tr>
+<tr>
+<td>Can we read the code?</td>
+<td>Yes. The repository is public under PolyForm Shield 1.0.0: read it, run it, change it.</td>
+</tr>
+<tr>
+<td>Is the release what Kainor published?</td>
+<td>Every release carries an integrity manifest signed with Kainor's key, listing every file with its hash; the module checks it when it loads, and the report header says whether the running copy is a release, a development copy or a modified one. Authenticode signing through Azure Artifact Signing starts once Microsoft finishes validating Kainor's signing account; until then the release zip says unsigned in its name.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="how-a-run-works">How a run works</h2>
+<p>An administrator runs <code>Start-PostureRun</code> on a machine you choose. The module signs that person in, reads
+configuration from Microsoft's APIs, writes the evidence and a report into a folder on that machine, and stops. Nothing
+is installed in the tenant beyond the consent records for the apps below, and nothing is scheduled unless you deploy
+the Azure Automation option yourself.</p>
+<table>
+<thead>
+<tr>
+<th>Sign-in</th>
+<th>What it reads</th>
+<th>Permissions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TenantKeep</strong> (Kainor's multi-tenant public client, shared with the TenantKeep On-Call app for what that reads)</td>
+<td>Entra, Intune, Defender, SharePoint tenant settings through Graph, and Power BI where approved</td>
+<td>Delegated permissions that are read-only by name, on every API. Posture's are under <code>resources</code> in <code>TenantKeep.Posture/app.json</code>, and the approval link names exactly those. On-Call's are under <code>sharedWith</code> and are approved from On-Call's own link. Nothing on the app can write; a test fails if that changes. No SharePoint, Azure, Teams or Power Platform permission.</td>
+</tr>
+<tr>
+<td><strong>TenantKeep Posture for Azure, Teams and Power Platform</strong> (Kainor's second public client, Posture's alone)</td>
+<td>Azure subscriptions, Teams policies and, where approved, Power Platform settings</td>
+<td>The one delegated permission each of those three APIs offers, listed in <code>TenantKeep.Posture/app-services.json</code>. None is read-only by name, which is why they are not on the app above. Approved separately; an organisation that reads none of the three never approves it.</td>
+</tr>
+<tr>
+<td><strong>TenantKeep Posture for SharePoint</strong> (optional, Kainor's second public client)</td>
+<td>The SharePoint settings Graph does not return: default links, Anyone link expiry, guest expiry, the site list</td>
+<td>Delegated SharePoint <code>AllSites.FullControl</code> plus the sign-in scopes, listed in <code>TenantKeep.Posture/app-sharepoint.json</code>. See below.</td>
+</tr>
+<tr>
+<td><strong>Exchange Online PowerShell</strong> (Microsoft's own app, through the ExchangeOnlineManagement module)</td>
+<td>Exchange Online and Purview configuration</td>
+<td>The administrator's own Exchange and Purview roles. The module runs <code>Get-</code> commands only.</td>
+</tr>
+<tr>
+<td><strong>Azure</strong> (through Az.Accounts, with a token from the second app above)</td>
+<td>Subscriptions, Defender for Cloud, policy, role assignments, Microsoft 365 pay-as-you-go spend</td>
+<td>The administrator's own Azure roles (Reader, Security Reader, Cost Management Reader).</td>
+</tr>
+</tbody>
+</table>
+<p>Delegated means the app can never do more than the administrator signed in to it could do anyway, and only while that
+person is signed in.</p>
+<h2 id="sharepoint-and-why-it-is-separate">SharePoint, and why it is separate</h2>
+<p>Microsoft offers no read-only permission for most SharePoint tenant settings: the SharePoint admin read needs
+SharePoint Administrator and, for a third-party app, <code>AllSites.FullControl</code>. TenantKeep Posture does not ask for it by
+default. Out of the box the SharePoint checks read Graph's read-only SharePoint settings, and the report names each
+check that needs more. For full coverage you choose one of:</p>
+<ol>
+<li><strong>The TenantKeep Posture for SharePoint app, granted to named administrators only.</strong>
+<code>deploy/setup/Grant-PostureSharePointAccess.ps1</code> adds it to your tenant, requires assignment (so an account that is
+not assigned cannot sign in to it at all) and grants it one administrator at a time. It never consents for the
+organisation, and <code>-RemoveOrganizationWideGrant</code> removes such a grant if someone made one in the portal. <code>-Disable</code>
+turns sign-in to the app off between runs and <code>-Enable</code> turns it back on.</li>
+<li><strong>The Windows collector on Microsoft's own shell.</strong> <code>collectors/windows/Get-SpoBaseline.ps1</code> runs on a Windows
+machine (a cloud PC works) as a SharePoint administrator, through Microsoft's SharePoint Online Management Shell.
+No third-party app is involved. It runs <code>Get-SPO</code> commands only, and a test fails the build on any other. Its output
+is brought into the run with <code>Import-PostureEvidence</code>, which checks the tenant and every file's SHA-256.</li>
+</ol>
+<p>Either way, the person running the SharePoint read holds SharePoint Administrator while they do. No tool can remove
+that: reading those settings needs the role. What you can control is how long they hold it (activate it in PIM for the
+run) and what the record shows afterwards (below).</p>
+<h2 id="how-read-only-is-enforced">How read-only is enforced</h2>
+<ul>
+<li><strong>One entry point per service, reads only.</strong> Graph requests, Exchange and Purview commands (<code>Get-</code> only), PnP
+commands (<code>Get-PnP</code> only), Teams commands (<code>Get-Cs</code>, <code>Get-Team</code> and the two app availability reads,
+<code>Get-AllM365TeamsApps</code> and <code>Get-M365UnifiedTenantSettings</code>), Azure requests, and the Power BI and Power Platform
+requests each go through one function that refuses anything else.</li>
+<li><strong>Tests that fail the build.</strong> The module's test suite fails if any code sends a request other than GET, except five
+POSTs that are reads, each marked in the code: Graph batches of reads, advanced hunting queries, directory lookups
+by id, the Cost Management cost query, and the listing of the Power Platform tenant settings, which Microsoft made
+a POST and which goes to one fixed address with no body. The same tests fail on a SharePoint, Teams or Exchange
+command that is not a read, and on any connection made outside the sign-in code.</li>
+<li><strong>Where Microsoft offers no read-only permission, a separate app and the code are the limit.</strong> Three APIs have
+none: the Teams admin API, Azure Service Management, and the Power Platform admin API. Their permissions are not
+on the TenantKeep app, which holds read-only permissions on every API. They are on a second app, TenantKeep
+Posture for Azure, Teams and Power Platform, which an organisation approves separately and only Posture signs in
+to. The reason is how refresh tokens work: one for an app can be redeemed for any API the organisation granted
+that app, so a broader permission on the shared app would reach every tenant that approved it. On the second app
+the entry points above are what keep the run to reads. Power Platform's permission is optional within it and
+approved from a link of its own. Power BI's optional permission, Tenant.Read.All, is read-only by name and is on
+the TenantKeep app.</li>
+<li><strong>A tenant that approved an earlier version can check what it still holds.</strong> Until 2026-11-23 the TenantKeep app
+named the Azure and Teams permissions itself. Taking them off the registration does not take them away from an
+organisation that had approved them. <code>deploy/setup/Remove-PostureStaleGrant.ps1 -WhatIf</code> lists every permission
+the app holds in your tenant that its published manifest does not name; without <code>-WhatIf</code> it removes them.</li>
+<li><strong>Releases are checked when they load.</strong> The integrity manifest lists every file with its hash, signed with Kainor's
+key; the module checks it when it loads and the report says what it found. Authenticode signatures on every file
+follow once the signing account is validated (until then the zip is named unsigned).</li>
+<li><strong>The only tenant writes in the repository</strong> are the customer-side setup scripts under <code>deploy/setup/</code> (adding the
+apps, granting roles). Your administrator runs them knowingly; the module never does.</li>
+</ul>
+<h2 id="checking-a-run-afterwards">Checking a run afterwards</h2>
+<ul>
+<li><strong>What the run did.</strong> Every request a run sends is counted by service, method and target in <code>logs/calls.json</code> in
+the run folder, with ids and accounts replaced by placeholders. The report's Run Health view shows it, with a
+verdict: every request was a read, or a list of any that were not (there should never be any).</li>
+<li><strong>Your own audit logs.</strong> <code>deploy/verify/Test-PostureReadOnly.ps1</code> is a short script that does not load the module.
+Signed in with your own audit log access, it reads the unified audit log, Entra's directory audit log and Entra's
+sign-in log for the account that ran the report, over the window the run took, and lists any change that account
+made. Exchange records only commands that change something, and Entra's directory audit log holds only changes, so
+the expected answer is none. Run it the day after the run, because audit records can take hours to arrive.</li>
+<li><strong>Sign-in logs.</strong> The account's sign-ins during the run show exactly which apps it used, by app id.</li>
+</ul>
+<p>The audit log names the account, not the tool. Run the report with an account that does nothing else in that window,
+or anything else it did shows up too.</p>
+<h2 id="recommended-setup-for-the-account-that-runs-it">Recommended setup for the account that runs it</h2>
+<ul>
+<li>A <strong>dedicated account</strong> for posture runs, with phishing-resistant MFA, used for nothing else.</li>
+<li><strong>Global Reader</strong>, which covers Entra, Intune, Defender, Exchange and most Purview reads. Eligible in PIM, or
+permanent if your policy allows a read-only role standing. <code>Get-PostureRequirement</code> lists each step's least role.</li>
+<li><strong>SharePoint Administrator eligible in PIM</strong>, activated only for the SharePoint read, or held only by the person who
+runs the Windows collector.</li>
+<li><strong>Purview role groups</strong> for Insider Risk, Communication Compliance, audit retention and eDiscovery only if you want
+those checks; Azure Reader, Security Reader and Cost Management Reader only if you want the Azure domain.</li>
+<li><strong>A Conditional Access policy for the account</strong>: phishing-resistant MFA and a compliant device, so the run happens on
+a managed machine or cloud PC and the evidence stays inside your environment.</li>
+<li><strong>The SharePoint app turned off between runs</strong> (<code>Grant-PostureSharePointAccess.ps1 -Disable</code>) if you use it.</li>
+<li><strong>Device code sign-in blocked</strong> in Conditional Access is compatible: the module signs in through the browser by
+default. Only its <code>-DeviceCode</code> option needs device code flow.</li>
+</ul>
+<h2 id="what-the-evidence-holds">What the evidence holds</h2>
+<p>Configuration and object metadata: policy settings, user principal names and display names, group and device names,
+site addresses, role assignments, licence counts, and sign-in tallies (counts by day, country and result). Not mail or
+file content, not passwords or secrets. For BitLocker the collector reads which devices have a recovery key escrowed,
+never the keys themselves (<code>BitLockerKey.ReadBasic.All</code>). The banned password list is kept as a count only.</p>
+<p>The evidence and the report are files in the folder the administrator chose. You decide how long they are kept; delete
+the folder to remove them. <code>New-PostureReport -Redact</code> writes a copy of the report with names removed, for sharing
+outside the team.</p>
+<h2 id="dependencies">Dependencies</h2>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Publisher</th>
+<th>Used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Microsoft.Graph.Authentication</td>
+<td>Microsoft</td>
+<td>Graph requests</td>
+</tr>
+<tr>
+<td>ExchangeOnlineManagement</td>
+<td>Microsoft</td>
+<td>Exchange Online and Purview reads</td>
+</tr>
+<tr>
+<td>MicrosoftTeams</td>
+<td>Microsoft</td>
+<td>Teams settings</td>
+</tr>
+<tr>
+<td>Az.Accounts, Az.ResourceGraph</td>
+<td>Microsoft</td>
+<td>Azure reads</td>
+</tr>
+<tr>
+<td>PnP.PowerShell</td>
+<td>PnP community (open source)</td>
+<td>SharePoint admin read through the optional SharePoint app</td>
+</tr>
+<tr>
+<td>Microsoft.Online.SharePoint.PowerShell</td>
+<td>Microsoft</td>
+<td>SharePoint admin read in the Windows collector</td>
+</tr>
+</tbody>
+</table>
+<p>Each run records the versions it used in <code>collection.json</code>. <code>Get-PostureRequirement</code> lists the versions tested.</p>
+<h2 id="reporting-a-security-problem">Reporting a security problem</h2>
+<p>See <code>SECURITY.md</code>: security@kainor.com, acknowledged within three business days.</p>
+</article></main>
+<footer>
+  <div class="wrap">
+    <div class="foot-inner">
+      <span>© 2026 Kainor LLC. All rights reserved. TenantKeep™ and LAPSlock™ are trademarks of Kainor LLC. Kainor LLC is not affiliated with, endorsed by, or sponsored by Microsoft Corporation; Microsoft, Microsoft Entra, Microsoft Intune, Microsoft Purview, Microsoft Defender, Microsoft 365 Copilot, Windows and BitLocker are trademarks of the Microsoft group of companies.</span>
+      <span class="foot-links">
+        <a href="/on-call/">On-Call</a>
+        <a href="/posture/">Posture</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/consent/">Approve the apps</a>
+        <a href="https://github.com/Kainor-LLC">GitHub</a>
+        <a href="https://kainor.com/blog/">Blog</a>
+        <a href="https://kainor.com/privacy/">Privacy</a>
+        <a href="https://kainor.com/terms/">Terms</a>
+        <a href="mailto:connor@kainor.com">Contact</a>
+      </span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,7 +1,7 @@
 #Requires -Version 7.4
 # Copyright (c) 2026 Kainor LLC.
-# Re-renders Posture's pages from the posture repository beside this one: guide, licensing, how-it-works, architecture
-# and the catalog. -Sample also rebuilds the sample report from the made-up demo tenant (build.ps1 -Task Demo),
+# Re-renders Posture's pages from the posture repository beside this one: guide, licensing, how-it-works, architecture,
+# the security review and the catalog. -Sample also rebuilds the sample report from the made-up demo tenant (build.ps1 -Task Demo),
 # publishes the whole report at /posture/sample-report/ and writes the pictures of it to docs/assets/posture/. The
 # sample and every picture come from that demo tenant only, never from a real one.
 param([switch] $Sample)
@@ -11,7 +11,7 @@ $posture = Join-Path $site '..' 'tenantkeep-posture'
 if (-not (Test-Path $posture)) { throw "Posture repository not found at $posture" }
 & (Join-Path $posture 'build.ps1') -Task Catalog -SkipInstall | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $site '.work') -Force | Out-Null
-foreach ($n in 'guide', 'licensing', 'architecture', 'footprint') { [System.IO.File]::WriteAllText((Join-Path $site '.work' "$n.fragment.html"), (ConvertFrom-Markdown -Path (Join-Path $posture 'docs' "$n.md")).Html) }
+foreach ($n in 'guide', 'licensing', 'architecture', 'footprint', 'security-review') { [System.IO.File]::WriteAllText((Join-Path $site '.work' "$n.fragment.html"), (ConvertFrom-Markdown -Path (Join-Path $posture 'docs' "$n.md")).Html) }
 if ($Sample) {
     & (Join-Path $posture 'build.ps1') -Task Demo -SkipInstall | Out-Null
     $demo = Join-Path $posture 'out' 'demo'

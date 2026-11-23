@@ -72,7 +72,7 @@
         <article class="rule"><h3>Read-only, always</h3><p>No cmdlet in the module writes to a tenant. The only tenant writes in the repository are the one-time setup scripts your own admin runs: an app registration, a consent, a role grant.</p></article>
         <article class="rule"><h3>Nothing leaves your environment</h3><p>No telemetry, no callbacks, no licence server. The licence is a signed file verified offline against public keys built into the module. Evidence and reports stay in your folder or your storage account.</p></article>
         <article class="rule"><h3>Your identities, your Azure</h3><p>Local runs use the signed-in admin. The scheduled cycle runs in an Automation account in your subscription with a managed identity and read-only roles you grant and can revoke.</p></article>
-        <article class="rule"><h3>Read it before you trust it</h3><p>The source is published. Every check is data you can read, every release is signed, and the report says which build produced it.</p></article>
+        <article class="rule"><h3>Read it before you trust it</h3><p>The source is published. Every check is data you can read, every release carries a signed list of its files, and the report says which build produced it. The <a href="/security/">security review</a> answers what an approver asks, and shows how to check each answer in your own tenant.</p></article>
       </div>
     </div>
   </section>
