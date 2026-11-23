@@ -253,3 +253,16 @@ nav a[aria-current]{text-decoration:underline;text-underline-offset:6px}
 .doc details{margin:8px 0 14px}
 .doc details summary{cursor:pointer;color:var(--signal)}
 .doc .appid{font-size:.9em;opacity:.75}
+
+/* the second navigation row, one per product */
+.subnav{background:#0D1626;border-top:1px solid var(--line-dark)}
+.subnav .wrap{display:flex;gap:26px;overflow-x:auto;padding-top:12px;padding-bottom:12px;white-space:nowrap;scrollbar-width:none}
+.subnav .wrap::-webkit-scrollbar{display:none}
+.subnav a{font-size:11.5px}
+
+/* On-Call's pages */
+.wrap.narrow{max-width:760px}
+.summary{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--signal);border-radius:8px;padding:22px 24px;margin-bottom:40px}
+.summary h2{font-size:19px;margin-bottom:10px}
+.summary p{color:var(--ink-soft)}
+.summary p + p{margin-top:10px}
