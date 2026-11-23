@@ -247,3 +247,9 @@ nav a[aria-current]{text-decoration:underline;text-underline-offset:6px}
 .trial-form input{font:inherit;padding:.6rem .7rem;border:1px solid currentColor;border-radius:6px;background:transparent;color:inherit}
 .trial-form button{font:inherit;font-weight:600;justify-self:start;padding:.65rem 1.1rem;border-radius:6px;border:0;background:#D9480F;color:#fff;cursor:pointer}
 .trial-form button[disabled]{opacity:.6;cursor:default}
+
+/* consent page */
+.doc a.btn-solid{color:#fff}
+.doc details{margin:8px 0 14px}
+.doc details summary{cursor:pointer;color:var(--signal)}
+.doc .appid{font-size:.9em;opacity:.75}
