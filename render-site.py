@@ -131,6 +131,35 @@ if os.path.isdir(ONCALL_DOCS):
 else:
     print('On-Call repository not found beside this one; its pages were left as they are')
 
+# --- TenantKeep On-Call's guide and architecture pages
+# Written here, in pages/, as the body of a document page: the guide's pictures are in docs/assets/on-call/, taken from
+# the app's demo data by the On-Call repository's scripts/store-screenshots.sh and never from a real tenant. Both
+# restate what the On-Call repository's docs publish (how it works, the three contracts), so a change there is a
+# change here.
+def label_cells(body):
+    # On a phone a table of three columns does not fit, so each row becomes a card (site.css, table.cards) and each
+    # cell says which column it was: the column's heading, written onto the cell here.
+    def one(m):
+        table = m.group(0)
+        labels = [re.sub(r'<[^>]+>', '', t) for t in re.findall(r'<th>(.*?)</th>', table, re.S)]
+        def row(r):
+            cells = iter(labels)
+            return re.sub(r'<td>', lambda _: '<td data-label="%s">' % html.escape(next(cells, ''), quote=True), r.group(0))
+        return re.sub(r'<tr><td>.*?</tr>', row, table, flags=re.S).replace('<table>', '<table class="cards">', 1)
+    return re.sub(r'<table>.*?</table>', one, body, flags=re.S)
+def oncall_doc(source, dest, title, desc, h1, lede):
+    body = label_cells(open(os.path.join(root, 'pages', source), encoding='utf-8').read())
+    for src in re.findall(r'<img src="/([^"]+)"', body):
+        assert os.path.isfile(os.path.join(root, 'docs', src)), (source, 'picture not found', src)
+    page(os.path.join(root, 'docs', 'on-call', dest, 'index.html'), title, desc, h1, lede, body, '/on-call/' + dest + '/', section='oncall')
+oncall_doc('on-call-guide.html', 'guide', 'TenantKeep On-Call · Using it, step by step',
+           'From the first sign-in to the first action in TenantKeep On-Call, with pictures of each screen from the app\'s demo data.',
+           'Using TenantKeep On-Call', 'From the first launch to the first action, with what you will see on the way.')
+oncall_doc('on-call-architecture.html', 'architecture', 'TenantKeep On-Call · Architecture: what runs where, and as whom',
+           'How TenantKeep On-Call is built: the app and Microsoft with nothing between them, eight app registrations with one read-only, what is kept on the device, and the one hosted service.',
+           'What Runs Where, and as Whom', 'The structure of TenantKeep On-Call, for the person deciding whether to let it into a tenant.')
+print('rendered on-call: guide, architecture')
+
 # --- the pages with a hero: the home page and each product's overview
 # Hand-written in pages/, with <!--TOPBAR--> where the top row goes, so a change to the navigation reaches them too.
 def hero_page(source, dest, title, desc, section=None, current=None):

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TenantKeep On-Call · Using it, step by step</title>
+<meta name="description" content="From the first sign-in to the first action in TenantKeep On-Call, with pictures of each screen from the app's demo data.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23131E2E'/%3E%3Ctext x='32' y='45' font-family='Arial Narrow, Arial, sans-serif' font-size='38' font-weight='700' fill='%23D9480F' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="TenantKeep home"><span class="k">TenantKeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/on-call/" aria-current="page">On-Call</a><a href="/posture/">Posture</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
+<nav class="subnav" aria-label="TenantKeep On-Call"><div class="wrap"><a href="/on-call/">Overview</a><a href="/on-call/guide/" aria-current="page">Guide</a><a href="/on-call/how-it-works/">How it works</a><a href="/on-call/architecture/">Architecture</a><a href="/on-call/pricing/">Pricing</a><a href="/on-call/glossary/">Sign-in error glossary</a><a href="/consent/">Approve the apps</a></div></nav>
+<main><article class="doc"><span class="eyebrow">TenantKeep On-Call</span><h1>Using TenantKeep On-Call</h1><p class="lede">From the first launch to the first action, with what you will see on the way.</p><p>Every picture on this page is the app's own demo data: no real organization, person or device appears in any of them.</p>
+
+<div class="callout"><p><strong>In a hurry?</strong> Install the app, tap <strong>Explore with demo data</strong>, and look around before anyone approves anything. Then come back to <a href="#sign-in">Sign In</a>.</p></div>
+
+<h2 id="before-you-start">1. Before You Start</h2>
+<ul>
+  <li><strong>An iPhone or iPad</strong> on iOS 17 or later, with Face ID, Touch ID or a passcode set.</li>
+  <li><strong>Microsoft Entra ID and Microsoft Intune.</strong> The device list comes from Intune and the credentials from Entra ID.</li>
+  <li><strong>Windows LAPS backing up to Microsoft Entra ID</strong>, if you want local administrator passwords. LAPS that backs up to on-premises Active Directory cannot be read by anything outside it.</li>
+  <li><strong>A role that can read what you want to see.</strong> For LAPS passwords, Cloud Device Administrator is the least privileged role that can. The app never gives you access your account does not already have.</li>
+  <li><strong>Someone who can approve an app for your organization</strong>, once: a Global Administrator, or another role your organization allows to grant consent.</li>
+</ul>
+
+<h2 id="look-around-first">2. Look Around First, With Demo Data</h2>
+<div class="shots">
+  <figure class="shot"><img src="/assets/on-call/iphone-modules.jpg" width="640" height="1391" loading="lazy" alt="The app's home screen in demo data: LAPSlock, Privileged Access, People, Tenant Pulse, Conditional Access and Security."><figcaption>The modules. The banner says demo data on every screen.</figcaption></figure>
+  <div class="beside">
+    <p>On the sign-in screen, tap <strong>Explore with demo data</strong>. Every module opens on an invented organization, and nothing is sent to Microsoft or to anyone else. It is the quickest way to decide whether the app is worth an approval.</p>
+    <p>To leave, open Settings (the gear) and choose <strong>Leave demo</strong>.</p>
+  </div>
+</div>
+
+<h2 id="sign-in">3. Sign In</h2>
+<p>Tap <strong>Sign in with Microsoft</strong> and sign in as you normally do. Your organization's Conditional Access, multifactor authentication and device rules apply, because this is an ordinary Microsoft sign-in. The app has no account system and no password of its own.</p>
+<p><strong>The first person in an organization</strong> is told that an administrator needs to approve the app. The sign-in screen has <strong>Send the approval link to an administrator</strong>, which shares a link to Microsoft's own approval page. An administrator can also approve it at <a href="/consent/">Approve the apps</a> without installing anything. What they approve at this point is the read-only app: it can read, and it cannot change anything in your tenant.</p>
+<p>The first sign-in asks for the device list and nothing heavier. The permission to read a password is asked for the first time you reveal one, and each module asks for its own when you first open it.</p>
+
+<h2 id="find-a-device">4. Find a Device and Reveal a Password</h2>
+<div class="shots">
+  <figure class="shot"><img src="/assets/on-call/iphone-devices.jpg" width="640" height="1391" loading="lazy" alt="The device list, with a search field for device, user or serial."><figcaption>Search by device name, the person who uses it, or serial number.</figcaption></figure>
+  <figure class="shot"><img src="/assets/on-call/iphone-reveal.jpg" width="640" height="1391" loading="lazy" alt="A device's local administrator password revealed, with a countdown, Copy and Hide buttons, earlier passwords, and BitLocker recovery keys listed by drive."><figcaption>A revealed password, its sixty-second countdown, earlier passwords and the BitLocker keys.</figcaption></figure>
+</div>
+<ol>
+  <li>Open <strong>LAPSlock</strong> and search. A ticket usually names a person, so the search matches the primary user's name and address as well as the hostname.</li>
+  <li>Open the device and tap <strong>Reveal password</strong>.</li>
+  <li>Face ID or Touch ID runs first, before anything is asked of Microsoft. If you cancel, no audit event is created in your tenant.</li>
+  <li>The password shows for sixty seconds, then is wiped from memory. <strong>Copy</strong> puts it on a clipboard entry that expires by itself and stays off your other devices.</li>
+</ol>
+<p><strong>Earlier passwords</strong> are listed under the current one, for a machine that stopped checking in and still has an old one. <strong>BitLocker recovery keys</strong> are listed by drive, with the start of each key ID, so you can match the key the locked machine is asking for.</p>
+<p>The free tier reveals five credentials in each thirty days, and the count is shown under the button. Every reveal appears in your tenant's audit log under your name, exactly as it would from the Microsoft admin center.</p>
+
+<h2 id="activate-a-role">5. Activate a Role, Approve a Request</h2>
+<div class="shots">
+  <figure class="shot"><img src="/assets/on-call/iphone-approvals.jpg" width="640" height="1391" loading="lazy" alt="The Approvals tab of Privileged Access, listing three requests waiting for a decision."><figcaption>Requests waiting for you, with the role, the duration and when it was asked.</figcaption></figure>
+  <div class="beside">
+    <p>If your access is eligible in Privileged Identity Management, not active, <strong>Privileged Access</strong> activates it from the phone. The app reads your organization's own policy first, so it offers only the durations the policy allows and tells you up front when a ticket number or a justification is required.</p>
+    <p>Activating changes something, so it is off until you turn on <strong>Allow role activation</strong> in Settings, under Actions and Permissions, and your organization has approved the app that carries it.</p>
+    <p>Where you are an approver, the <strong>Approvals</strong> tab shows what is waiting, with the requester's reason. Your decision is recorded in the audit log as you.</p>
+  </div>
+</div>
+
+<h2 id="people">6. People: Why a Sign-In Failed</h2>
+<div class="shots">
+  <figure class="shot"><img src="/assets/on-call/iphone-people.jpg" width="640" height="1391" loading="lazy" alt="The People list with a search field for name or sign-in address."><figcaption>Find a person by name or sign-in address.</figcaption></figure>
+  <figure class="shot"><img src="/assets/on-call/iphone-person.jpg" width="640" height="1391" loading="lazy" alt="One person's page: whether they can sign in, their risk, their sign-in methods and devices, and recent sign-ins with the reason each failed."><figcaption>One person: account state, then each sign-in with the reason it failed.</figcaption></figure>
+</div>
+<p>Open <strong>People</strong>, find the person, and read down. The top says whether they can sign in, their risk level, how many sign-in methods they have and which devices are theirs. Below are their recent sign-ins, newest first. A failed one is explained in plain words, with the Conditional Access policy that blocked it named, and the Microsoft error code beside it. The same explanations are published as the <a href="/on-call/glossary/">sign-in error glossary</a>.</p>
+<p><strong>Actions</strong>, <strong>Leaver Checklist</strong> and <strong>Groups</strong> on a person's page are the things you can do about what you found. They are covered in <a href="#actions">Turning On Actions</a>.</p>
+
+<h2 id="tenant-pulse">7. Tenant Pulse</h2>
+<div class="shots">
+  <figure class="shot"><img src="/assets/on-call/iphone-tenant-pulse.jpg" width="640" height="1391" loading="lazy" alt="Tenant Pulse: service health with two degraded services, and Message Center posts with their deadlines."><figcaption>What is degraded now, and what has a deadline.</figcaption></figure>
+  <div class="beside">
+    <p>One screen for the state of the tenant: which Microsoft services are degraded and the open incidents, Message Center posts that need action with their deadlines first, app secrets and certificates about to expire, the Apple push certificate, and Secure Score with its change over the week.</p>
+    <p>It reads expiry dates only, never a secret's value.</p>
+  </div>
+</div>
+
+<h2 id="conditional-access">8. Conditional Access</h2>
+<div class="shots">
+  <figure class="shot"><img src="/assets/on-call/iphone-conditional-access.jpg" width="640" height="1391" loading="lazy" alt="The list of Conditional Access policies, each with its state and when it last changed."><figcaption>Every policy, most recently changed first.</figcaption></figure>
+  <figure class="shot"><img src="/assets/on-call/iphone-policy.jpg" width="640" height="1391" loading="lazy" alt="One policy: its state, who it includes, its target resources, conditions and grant controls, with names resolved."><figcaption>One policy, with its roles, apps and conditions shown by name.</figcaption></figure>
+</div>
+<p>Every policy, read-only, sorted by when it last changed, with a badge on anything changed in the last seven days. Open one to see who it applies to, what it covers and what it requires, with the roles, groups and apps shown by name. <strong>Who changed this</strong> reads the audit entries for that one policy. Nothing in the app can change a policy.</p>
+
+<h2 id="security">9. Security</h2>
+<div class="shots">
+  <figure class="shot"><img src="/assets/on-call/iphone-incidents.jpg" width="640" height="1391" loading="lazy" alt="Open security incidents with severity, status and what each involves."><figcaption>Open incidents, newest first.</figcaption></figure>
+  <figure class="shot"><img src="/assets/on-call/iphone-incident.jpg" width="640" height="1391" loading="lazy" alt="One incident: severity, status, a description, a link to open it in Defender, and its alerts."><figcaption>One incident, its alerts, and a link into Defender.</figcaption></figure>
+  <figure class="shot"><img src="/assets/on-call/iphone-email.jpg" width="640" height="1391" loading="lazy" alt="The Email tab: six fixed investigation queries, such as messages from a sender and who clicked a link."><figcaption>Six fixed email queries.</figcaption></figure>
+</div>
+<p><strong>Incidents</strong> lists the open Microsoft Defender incidents with their alerts, who and what was involved, and what Microsoft recommends. It reads only: assigning, classifying and resolving stay in Defender, and each incident has a link there.</p>
+<p><strong>Email</strong> runs six fixed questions over your mail flow: what a sender sent, what reached a person, messages by subject, phish or malware that was delivered, what was removed after delivery, and who clicked a link. There is no box to write your own query, and the text of each is in the published source.</p>
+<div class="shots">
+  <figure class="shot"><img src="/assets/on-call/iphone-threat-digest.jpg" width="640" height="1391" loading="lazy" alt="The Digest tab: this week's vulnerabilities, each tagged with why it matters, such as exploited in the wild."><figcaption>The Threat Digest, ranked for a Microsoft shop.</figcaption></figure>
+  <figure class="shot"><img src="/assets/on-call/iphone-threat-digest-card.jpg" width="640" height="1391" loading="lazy" alt="One vulnerability with the reasons it ranked where it did and its score."><figcaption>Why an item ranked where it did.</figcaption></figure>
+</div>
+<p><strong>Digest</strong> is the week's real-world threats from CISA, Microsoft, the SANS Internet Storm Center and BleepingComputer, ranked on your device, with the reasons for each rank shown. It needs no Microsoft permission and sends nothing about you: each source is a public file.</p>
+
+<h2 id="actions">10. Turning On Actions</h2>
+<p>Out of the box the app reads and cannot change anything. Each kind of change is a separate decision, made twice: once by your organization, and once by you.</p>
+<ol>
+  <li><strong>Your organization approves the app for that kind of action</strong>, at <a href="/consent/">Approve the apps</a>. It can approve one app for each kind (role activation, device actions, user actions, account recovery, group membership) and leave out any it does not want, or approve TenantKeep Actions for all of them.</li>
+  <li><strong>You turn it on</strong> in Settings, under <strong>Actions and Permissions</strong>: Allow device actions, Allow user actions, Allow group changes, Allow role activation. The app then signs you in to that one app, as the same person.</li>
+</ol>
+<p>After that, every action goes the same way:</p>
+<ul>
+  <li><strong>You confirm it.</strong> A reversible action, such as a sync, takes a tap. A destructive one, such as retire or wipe, takes typing the name of the device or the person.</li>
+  <li><strong>Face ID again</strong>, where the app lock or your organization's policy asks for it.</li>
+  <li><strong>Ten seconds to undo</strong> before anything is sent.</li>
+  <li><strong>It is sent once</strong>, as you. If the answer from Microsoft is lost, the app says the action may have gone through and asks you to check before sending it again.</li>
+  <li><strong>It is written to the Shift Log</strong> in Settings, with Microsoft's request ID, which you can export at the end of a shift.</li>
+</ul>
+<table class="cards">
+  <thead><tr><th>Switch</th><th>What it adds</th></tr></thead>
+  <tbody>
+    <tr><td data-label="Switch">Allow device actions</td><td data-label="What it adds">Sync, restart, remote lock, locate, rotate the LAPS password or BitLocker key, retire and wipe.</td></tr>
+    <tr><td data-label="Switch">Allow user actions</td><td data-label="What it adds">Sign a person out everywhere, block or allow sign-in, confirm or dismiss risk. With account recovery approved: remove sign-in methods and issue a Temporary Access Pass. The Leaver Checklist walks through them for someone who is leaving.</td></tr>
+    <tr><td data-label="Switch">Allow group changes</td><td data-label="What it adds">Add a person to a group or remove them. Never the group itself, and never a role-assignable, dynamic, synced or mail group. By default only groups in your helpdesk administrative unit, with your prefix, or that you own.</td></tr>
+    <tr><td data-label="Switch">Allow role activation</td><td data-label="What it adds">Activate an eligible role or group membership, and approve or deny requests.</td></tr>
+    <tr><td data-label="Switch">Allow Mac password reveal</td><td data-label="What it adds">Experimental. A Mac's local admin password, for a Mac enrolled through Automated Device Enrollment. Not yet confirmed on an enrolled Mac.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="notifications">11. Notifications and Instant Alerts</h2>
+<p><strong>Notifications</strong>, in Settings, are made on the phone: it checks Microsoft when iOS lets the app run in the background, and tells you about service health, Message Center deadlines, expiring secrets and certificates, and a sign-in by an account you named as break-glass. iOS decides when that check runs, which can be minutes or hours. They are part of Pro.</p>
+<p><strong>Instant Alerts</strong> are for the few events where minutes matter: a break-glass sign-in, a Conditional Access change, a new or raised security incident. They are the one part of the app that uses a service Kainor runs, so they are off until an administrator turns them on, and your organization approves a read-only app called TenantKeep Watch. An alert names the kind of event and your organization, never a person or a policy, and it is encrypted for your phone. <a href="/on-call/architecture/#instant-alerts">How it is built</a> says what each part can see.</p>
+
+<h2 id="on-ipad">12. On iPad</h2>
+<div class="shots">
+  <figure class="shot wide"><img src="/assets/on-call/ipad-reveal.jpg" width="1400" height="1867" loading="lazy" alt="The app on iPad in three columns: modules, the device list, and one device with its password revealed."><figcaption>Three columns on iPad: modules, the list, and what you opened.</figcaption></figure>
+</div>
+<p>The same app, laid out in three columns, so a list stays in view while you read what you opened. Everything on this page works the same way.</p>
+
+<h2 id="on-apple-watch">13. On Apple Watch</h2>
+<div class="shots">
+  <figure class="shot watch"><img src="/assets/on-call/watch-home.png" width="416" height="496" loading="lazy" alt="The watch app's first screen: the organization and the approvals waiting."><figcaption>What is waiting.</figcaption></figure>
+  <figure class="shot watch"><img src="/assets/on-call/watch-approval.png" width="416" height="496" loading="lazy" alt="One approval request on the watch: who, which role and for how long."><figcaption>One request.</figcaption></figure>
+  <div class="beside">
+    <p>The watch shows your active roles and the approvals waiting for you, and lets you approve, deny or activate from your wrist. It holds no sign-in of its own: the phone sends your decision, as you. Where your organization asks for the stricter confirmation, the watch asks you to finish on the phone.</p>
+  </div>
+</div>
+
+<h2 id="more-than-one-organization">14. More Than One Organization</h2>
+<p>A managed service provider can switch between customer organizations inside the app. Each switch is a choice you make, the organization you are in is shown on every screen, and nothing from one customer stays on screen for the next: pinned devices, lists and searches belong to the organization they came from. A saved search can be run across all of them, read-only. Each customer approves the apps for itself.</p>
+
+<h2 id="managed-by-your-organization">15. Managed by Your Organization</h2>
+<p>If your organization deploys the app with Intune, it can switch modules off, require the stricter confirmation for every action, keep the app to its own tenant, require the app lock, and name the break-glass accounts. Settings shows <strong>Managed by Your Organization</strong> with what was set. A policy can only take something away or ask for more care. The keys are in the <a href="https://github.com/Kainor-LLC/LAPSlock/blob/main/docs/MANAGED-CONFIG.md">managed configuration reference</a>.</p>
+
+<h2 id="app-lock">16. Lock the App</h2>
+<p>Settings, General, <strong>App Lock</strong> puts the whole app behind Face ID. The device list is worth something to an attacker even with no password on screen, so it is worth turning on.</p>
+
+<h2 id="getting-help">17. Getting Help</h2>
+<p>Email <a href="mailto:connor@kainor.com">connor@kainor.com</a>. If something failed, Settings, <strong>Diagnostics</strong> gathers a report you can read in full before you send it. It carries Microsoft's error codes and request IDs, and it cannot contain a password, a recovery key, a device name or a user name.</p>
+
+<h2 id="removing-it">18. Removing It</h2>
+<p>Delete the app from the device. To withdraw your organization's approval, delete each TenantKeep app under Enterprise applications in the Entra admin center. Nothing of yours is held anywhere else, unless Instant Alerts were on: removing TenantKeep Watch stops that service reading at once, and it deletes what it held within a day.</p>
+</article></main>
+<footer>
+  <div class="wrap">
+    <div class="foot-inner">
+      <span>© 2026 Kainor LLC. All rights reserved. TenantKeep™ and LAPSlock™ are trademarks of Kainor LLC. Kainor LLC is not affiliated with, endorsed by, or sponsored by Microsoft Corporation; Microsoft, Microsoft Entra, Microsoft Intune, Microsoft Purview, Microsoft Defender, Microsoft 365 Copilot, Windows and BitLocker are trademarks of the Microsoft group of companies.</span>
+      <span class="foot-links">
+        <a href="/on-call/">On-Call</a>
+        <a href="/posture/">Posture</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/consent/">Approve the apps</a>
+        <a href="https://github.com/Kainor-LLC">GitHub</a>
+        <a href="https://kainor.com/blog/">Blog</a>
+        <a href="https://kainor.com/privacy/">Privacy</a>
+        <a href="https://kainor.com/terms/">Terms</a>
+        <a href="mailto:connor@kainor.com">Contact</a>
+      </span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

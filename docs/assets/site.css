@@ -266,3 +266,47 @@ nav a[aria-current]{text-decoration:underline;text-underline-offset:6px}
 .summary h2{font-size:19px;margin-bottom:10px}
 .summary p{color:var(--ink-soft)}
 .summary p + p{margin-top:10px}
+
+/* guide and architecture pages: screenshots, and flows that turn on their side on a phone */
+.doc .shots{display:flex;flex-wrap:wrap;align-items:flex-start;gap:22px;margin:18px 0 22px}
+.doc figure.shot{margin:0;flex:0 1 250px;min-width:0}
+.doc figure.shot.wide{flex:1 1 100%}
+.doc figure.shot.watch{flex:0 1 150px}
+.doc figure.shot img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:0 8px 22px rgba(19,30,46,.10)}
+.doc figure.shot.wide img{border-radius:14px}
+.doc figure.shot.watch img{border-radius:28px;border-color:#000}
+.doc figure.shot figcaption{font-size:14px;line-height:1.45;color:var(--steel);margin-top:10px}
+.doc .shots .beside{flex:1 1 300px;min-width:0}
+.doc .flow{display:flex;align-items:stretch;margin:18px 0 22px}
+.doc .flow .node{flex:1 1 0;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.doc .flow .node b{display:block;font-size:16px;line-height:1.3;color:var(--ink)}
+.doc .flow .node span{display:block;font-size:14px;line-height:1.45;color:var(--steel);margin-top:4px}
+.doc .flow .node.kainor{border-color:var(--signal);border-width:2px}
+.doc .flow .node.you{background:var(--ink);border-color:var(--ink)}
+.doc .flow .node.you b{color:#fff}
+.doc .flow .node.you span{color:var(--mist)}
+.doc .flow .hop{flex:0 0 112px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 6px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;line-height:1.35;color:var(--steel)}
+.doc .flow .hop::after{content:"\2192";font-family:system-ui,sans-serif;font-size:22px;line-height:1;color:var(--signal);margin-top:4px}
+.doc .flow .hop.both::after{content:"\21C4"}
+@media (max-width:760px){
+  .doc .flow{flex-direction:column}
+  .doc .flow .hop{flex:0 0 auto;padding:8px 0}
+  .doc .flow .hop::after{content:"\2193"}
+  .doc .flow .hop.both::after{content:"\21C5"}
+  .doc figure.shot{flex:1 1 42%;max-width:300px}
+  .doc figure.shot.wide{max-width:none}
+  .doc figure.shot.watch{flex:0 1 130px}
+}
+@media (max-width:640px){
+  /* The site-wide table rule sets a minimum width of 560px, which a phone does not have: a document's table scrolls
+     sideways inside itself instead of being cut off at the edge of the page. */
+  .doc table{display:block;min-width:0;overflow-x:auto}
+  .doc table.cards,.doc table.cards tbody,.doc table.cards tr,.doc table.cards td{display:block;width:auto}
+  .doc table.cards thead{display:none}
+  .doc table.cards{border:0;background:none;border-radius:0;overflow:visible}
+  .doc table.cards tr{background:var(--card);border:1px solid var(--line);border-radius:8px;margin:0 0 10px;padding:8px 0}
+  .doc table.cards td{border:0;padding:3px 14px;overflow-wrap:anywhere}
+  .doc table.cards td:first-child{font-weight:600;color:var(--ink)}
+  .doc table.cards td[data-label]:not(:first-child)::before{content:attr(data-label);display:block;margin-top:6px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--steel)}
+}
+

@@ -1,0 +1,134 @@
+<p>TenantKeep On-Call is an iPhone and iPad app that talks to Microsoft as the administrator holding it. This page is the layout of the whole thing: what runs where, who each part runs as, and what each part can see. <a href="/on-call/how-it-works/">How it works</a> lists every permission and when it is asked for. This page is about the structure those permissions sit in.</p>
+
+<h2 id="the-whole-system">The Whole System</h2>
+<div class="flow" role="img" aria-label="The app on your device talks to Microsoft, in both directions, as you. Nothing sits between them.">
+  <div class="node you"><b>Your iPhone or iPad</b><span>TenantKeep On-Call, signed in as you</span></div>
+  <div class="hop both"><span>your sign-in<br>your roles</span></div>
+  <div class="node"><b>Microsoft</b><span>Entra ID for sign-in, Microsoft Graph for your tenant's data</span></div>
+</div>
+<p>That is the system for everything you read and everything you change. No Kainor server sits between the app and Microsoft, so a password, a recovery key or a sign-in log goes from Microsoft to the device in your hand and nowhere else.</p>
+<p>The app talks to eight hosts in all. Six are off until something you do turns them on.</p>
+<table>
+  <thead><tr><th>Connection</th><th>When</th><th>What crosses</th></tr></thead>
+  <tbody>
+    <tr><td>Microsoft sign-in and Microsoft Graph<br><code>login.microsoftonline.com</code>, <code>graph.microsoft.com</code></td><td>Always</td><td>Your sign-in, your requests, and your tenant's answers.</td></tr>
+    <tr><td>Four public feeds<br><code>www.cisa.gov</code>, <code>api.msrc.microsoft.com</code>, <code>isc.sans.edu</code>, <code>www.bleepingcomputer.com</code></td><td>When you open the Threat Digest, and in the background if you turn on its notifications</td><td>A request for a public file. No token, no tenant ID, no cookie.</td></tr>
+    <tr><td>Kainor's licence endpoint<br><code>kainor-lapslock-prod-func.azurewebsites.net</code></td><td>Only after you activate an organization licence, then about monthly</td><td>A version number and your tenant ID. A signed licence statement comes back.</td></tr>
+    <tr><td>Kainor's alert service<br><code>kainor-watch-prod-func.azurewebsites.net</code></td><td>Only after an administrator turns on Instant Alerts, then about daily</td><td>The phone's push token, its public key, the break-glass accounts you named, and a Microsoft token that can register a phone and read nothing.</td></tr>
+  </tbody>
+</table>
+<p>An installation on the free tier that never turns on Instant Alerts never contacts Kainor. The <a href="https://github.com/Kainor-LLC/LAPSlock/blob/main/docs/NETWORK-TRANSPARENCY.md">network transparency document</a> lists each host and shows how to confirm the list with a proxy in about ten minutes.</p>
+
+<h2 id="who-it-runs-as">Who It Runs As</h2>
+<p>You. Every request to Microsoft Graph carries a token issued to the person signed in, so your Conditional Access policies, your role assignments and your audit log apply to each one. The phone app holds no application permission: it has no access of its own, and it can do nothing while nobody is signed in.</p>
+
+<h3 id="eight-app-registrations">Eight App Registrations, One of Them Read-Only</h3>
+<p>Microsoft puts every permission an organization has granted an app into the tokens it issues that app, whichever permission a request named. Asking for less does not get less. So a sign-in that cannot change your tenant has to be a separate app, and On-Call has one.</p>
+<div class="flow" role="img" aria-label="Reads go through the read-only app. A change goes through a separate app, only after you turn that kind of action on.">
+  <div class="node you"><b>On-Call</b><span>one person, signed in once</span></div>
+  <div class="hop"><span>read-only app<br>at sign-in</span></div>
+  <div class="node"><b>Reads</b><span>Devices, sign-ins, policies, health, incidents, and the credentials you reveal</span></div>
+</div>
+<div class="flow" role="img" aria-label="A change goes through its own app.">
+  <div class="node you"><b>On-Call</b><span>the same person, or it is refused</span></div>
+  <div class="hop"><span>an action app<br>after you turn it on</span></div>
+  <div class="node"><b>Changes</b><span>One kind each: roles, devices, users, account recovery, group membership</span></div>
+</div>
+<table>
+  <thead><tr><th>App</th><th>Holds</th><th>The app signs in to it</th></tr></thead>
+  <tbody>
+    <tr><td>TenantKeep</td><td>Read permissions only</td><td>At sign-in. Everyone uses this one.</td></tr>
+    <tr><td>TenantKeep Role Activation</td><td>2 permissions</td><td>When you allow role activation.</td></tr>
+    <tr><td>TenantKeep Device Actions</td><td>2 permissions</td><td>When you allow device actions, or Mac password reveal.</td></tr>
+    <tr><td>TenantKeep User Actions</td><td>4 permissions</td><td>When you allow user actions.</td></tr>
+    <tr><td>TenantKeep Account Recovery</td><td>2 permissions</td><td>With user actions, for removing sign-in methods and issuing a Temporary Access Pass. An organization can leave it unapproved and keep the rest.</td></tr>
+    <tr><td>TenantKeep Group Membership</td><td>1 permission</td><td>When you allow group changes.</td></tr>
+    <tr><td>TenantKeep Actions</td><td>All 11 action permissions</td><td>In place of the five above, where an organization approved this one instead.</td></tr>
+    <tr><td>TenantKeep Alerts</td><td>No Microsoft Graph permission</td><td>When you turn on Instant Alerts, for a token that registers the phone.</td></tr>
+  </tbody>
+</table>
+<p>An organization approves the read-only app, then either the separate app for each kind of action it wants or TenantKeep Actions for all of them. Where both are approved the separate app is used, because its token is the narrower. Whoever signs in to an action app must be the person already signed in: a different account is refused and its session removed from the device. An administrator can approve any of them at <a href="/consent/">Approve the apps</a>, without installing anything.</p>
+<p>The read-only app is shared with <a href="/posture/">TenantKeep Posture</a>, so an organization that uses both approves one sign-in app. It holds read permissions for both products and nothing else, and On-Call asks for its own by name. The full list is published as <a href="https://kainor.com/app-registrations.json">app-registrations.json</a>, and a test in the source fails if the read-only list ever gains a permission that can change something.</p>
+
+<h2 id="inside-the-app">Inside the App</h2>
+<p>The app is built from separate modules, and a module can only use what it imports. That makes "this part cannot see a password" a property of how the code links, not a sentence in a document.</p>
+<table>
+  <thead><tr><th>Module</th><th>What it does</th><th>What it is kept from</th></tr></thead>
+  <tbody>
+    <tr><td>Sign-in</td><td>Signs you in and issues tokens. The only module that links Microsoft's sign-in library.</td><td>It decides which app registration a request goes through, and refuses to send a change through the read-only one.</td></tr>
+    <tr><td>Credentials (LAPSlock)</td><td>Reads LAPS passwords and BitLocker recovery keys.</td><td>It imports the system library and the sign-in module, and nothing else. Licensing, diagnostics and logging cannot be added to it without the build failing.</td></tr>
+    <tr><td>Privileged Access, and the action gate</td><td>Activates roles. Sends every change.</td><td>Neither can import the credentials module, so the code that raises your privileges or changes your tenant cannot reach a password.</td></tr>
+    <tr><td>Devices, People, Tenant Pulse, Conditional Access, Security</td><td>The read-only modules.</td><td>They share one Microsoft Graph client that pins the API version on every call and never repeats a change on its own.</td></tr>
+    <tr><td>Licensing and diagnostics</td><td>Checks a licence. Builds the support report you can read before sending.</td><td>The credentials module cannot import either, so neither can be handed a password.</td></tr>
+  </tbody>
+</table>
+<p>A script in the repository checks those imports in both directions. The only third-party code in the app is Microsoft's sign-in library, taken as Microsoft's signed binary with its checksum pinned. There is no analytics, telemetry or crash-reporting library.</p>
+
+<h3 id="one-gate-for-every-change">One Gate for Every Change</h3>
+<p>No screen calls Microsoft to change something. Every change, from a device sync to a wipe, passes through one gate, in this order:</p>
+<ol>
+  <li>The action is one your organization has not switched off, and the app that carries it is approved.</li>
+  <li>The role the action needs is checked as active.</li>
+  <li>You confirm it. A reversible action takes a tap. A destructive one, such as retire or wipe, takes typing the name of the device or person.</li>
+  <li>Face ID again, where the app lock or your organization's policy asks for it.</li>
+  <li>Ten seconds in which you can undo, before anything is sent.</li>
+  <li>One request to Microsoft, as you. A change is never retried automatically: if the answer is lost, the app says so, and you check before sending it again.</li>
+  <li>A line in the shift log on the device, with Microsoft's request ID, which you can export.</li>
+</ol>
+
+<h2 id="what-is-kept-on-the-device">What Is Kept on the Device</h2>
+<p>A password or recovery key is held in memory for the sixty seconds it is shown, then overwritten. It is never written to disk, never in a backup, and never in the app switcher. A Temporary Access Pass is never written to disk either.</p>
+<p>The Keychain holds exactly six items, and none is a credential:</p>
+<ul>
+  <li>Microsoft's sign-in token cache.</li>
+  <li>The count of free reveals used. It lives here and on no server, because a server count would be a record of how often your organization retrieves passwords.</li>
+  <li>The organization licence, if one was activated.</li>
+  <li>A managed service provider's list of customer organizations.</li>
+  <li>Notification preferences, with the break-glass accounts you named.</li>
+  <li>A reference to the key that opens Instant Alerts. The key itself is made in the Secure Enclave and never leaves it.</li>
+</ul>
+<p>Outside the Keychain the app keeps your preferences, the identifiers of devices you pinned, and the shift log. The device list and the people list are held in memory while the app is open, and dropped on sign-out or when you switch organization.</p>
+
+<h2 id="instant-alerts">Instant Alerts: The One Hosted Part</h2>
+<p>Everything above is the app acting as you. Instant Alerts are the exception, they are off until an organization opts in, and they are part of Pro. So that a break-glass sign-in reaches a phone within minutes, a service Kainor runs watches the organization with read-only access of its own.</p>
+<div class="flow" role="img" aria-label="Kainor's alert service reads your tenant's logs read-only, encrypts an alert for one phone, and sends it through Kainor's relay and Apple to that phone.">
+  <div class="node"><b>Your tenant's logs</b><span>Microsoft Graph</span></div>
+  <div class="hop"><span>read-only, as<br>TenantKeep Watch</span></div>
+  <div class="node kainor"><b>Alert service</b><span>Kainor, in Azure. Decides, then encrypts for one phone</span></div>
+  <div class="hop"><span>ciphertext</span></div>
+  <div class="node kainor"><b>Relay</b><span>Kainor. Passes it to Apple, keeps nothing</span></div>
+  <div class="hop"><span>Apple<br>push</span></div>
+  <div class="node you"><b>Your phone</b><span>Opens it with a key in its Secure Enclave</span></div>
+</div>
+<table>
+  <thead><tr><th>Part</th><th>What it can see</th><th>What it keeps</th></tr></thead>
+  <tbody>
+    <tr><td>TenantKeep Watch, the alert service</td><td>Sign-ins of the break-glass accounts you named and no one else's, Conditional Access entries in the audit log, and security incidents. Four read-only permissions. It cannot change anything, and cannot read a password, a recovery key, mail or files.</td><td>Identifiers only, listed in the <a href="https://github.com/Kainor-LLC/LAPSlock/blob/main/docs/INSTANT-ALERTS.md">Instant Alerts contract</a>. Never what it reads.</td></tr>
+    <tr><td>The relay</td><td>A push token, whether the alert is urgent, and ciphertext. Not the alert, and not which organization it is for.</td><td>Nothing.</td></tr>
+    <tr><td>Apple</td><td>The push token and the ciphertext.</td><td>What Apple keeps for any notification.</td></tr>
+    <tr><td>Your phone</td><td>The alert, which names the kind of event and your organization, never a person or a policy.</td><td>The identifiers of alerts seen in the last day, so none is shown twice.</td></tr>
+  </tbody>
+</table>
+<p>Each alert is encrypted for one phone and authenticated as the alert service's, so the relay can neither read one nor forge one, and an alert made for one phone fails on any other. Neither service holds a secret that could be copied: the alert service signs in to Microsoft, and identifies itself to the relay, with its Azure managed identity. Your organization approves TenantKeep Watch once and can remove it in Entra ID at any time, which stops all reading at once. The <a href="https://github.com/Kainor-LLC/LAPSlock/blob/main/docs/RELAY-API.md">relay contract</a> and the source of both services are published.</p>
+
+<h2 id="licensing-without-tracking">Licensing Without Tracking</h2>
+<ul>
+  <li><strong>Free.</strong> Five credential reveals in each thirty days, counted on the device.</li>
+  <li><strong>Pro.</strong> An App Store subscription. Apple handles the purchase, and Kainor has no account system and is never told who subscribes.</li>
+  <li><strong>An organization licence.</strong> A signed statement for your tenant ID, checked on the device against a public key built into the app, and refreshed about monthly with a request that carries the tenant ID and nothing else. The <a href="https://github.com/Kainor-LLC/LAPSlock/blob/main/docs/ENTITLEMENT-API.md">licence contract</a> says what that server keeps.</li>
+</ul>
+
+<h2 id="on-apple-watch">On Apple Watch</h2>
+<p>The watch app holds no sign-in and no credential. It shows what the phone tells it, your active roles and the approvals waiting for you, and an approval or an activation started on the watch is sent by the phone, as you. Where your organization asks for the stricter confirmation, the watch hands the decision back to the phone to finish there.</p>
+
+<h2 id="under-your-organizations-management">Under Your Organization's Management</h2>
+<p>An Intune app configuration policy can switch modules off, require extra confirmation for every action, keep the app to your own tenant, require the app lock, and name the break-glass accounts. A policy can only take something away or ask for more care. It cannot turn on a change nobody turned on in the app. The keys are in the <a href="https://github.com/Kainor-LLC/LAPSlock/blob/main/docs/MANAGED-CONFIG.md">managed configuration reference</a>.</p>
+
+<h2 id="check-it-yourself">Check It Yourself</h2>
+<ul>
+  <li><strong>The source.</strong> The <a href="https://github.com/Kainor-LLC/LAPSlock">repository</a> is public, including the code that handles credentials, the alert service and the relay.</li>
+  <li><strong>The network.</strong> Put a proxy on your phone and compare what you see with the table at the top of this page.</li>
+  <li><strong>Your audit log.</strong> Reveal a password and find the read in Entra ID, under your own name, exactly as if you had used the admin center.</li>
+  <li><strong>The permissions.</strong> Open any of the eight apps under Enterprise applications in Entra ID and read what your organization granted it.</li>
+  <li><strong>The short version for a security review.</strong> The <a href="https://github.com/Kainor-LLC/LAPSlock/blob/main/docs/SECURITY-ONE-PAGER.md">security one-pager</a>.</li>
+</ul>
