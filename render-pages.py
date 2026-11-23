@@ -55,4 +55,18 @@ body = re.search(r'<body>(.*?)</body>', cat, re.S).group(1)
 body = re.sub(r'^\s*<h1>.*?</h1>', '', body, count=1, flags=re.S)
 body = re.sub(r'^\s*<p>Every check the product evaluates.*?</p>', '', body, count=1, flags=re.S)
 open(os.path.join(root, 'docs', 'catalog', 'index.html'), 'w').write(HEAD.format(title='TenantKeep Posture · Check catalog', desc='Every check TenantKeep Posture evaluates, by domain, with the licence each needs.') + nav('/catalog/', 'posture') + '<main><article class="doc"><span class="eyebrow">TenantKeep Posture</span><h1>Check catalog</h1><p class="lede">Every check the product evaluates, by domain. The pass logic, remediation and framework mappings are part of the product; this page lists what is checked and the licence each check needs.</p>' + body + '</article></main>\n' + FOOT)
+# The counts on Posture's overview page come from the catalog the build just wrote ("N checks in M domains."), so they
+# never go stale: every element marked data-count="checks" or data-count="domains-word", in the page's source
+# (pages/posture.html, which render-site.py renders) and in the page as last rendered.
+_m = re.search(r'(\d+) checks in (\d+) domains\.', open(os.path.join(root, '..', 'tenantkeep-posture', 'out', 'catalog.md'), encoding='utf-8').read())
+if _m:
+    _words = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen', 'Twenty']
+    _checks, _domains = int(_m.group(1)), int(_m.group(2))
+    for _path in (os.path.join(root, 'pages', 'posture.html'), os.path.join(root, 'docs', 'posture', 'index.html')):
+        _text = open(_path, encoding='utf-8').read()
+        _new = re.sub(r'(data-count="checks">)[\d,]+(<)', lambda x: x.group(1) + str(_checks) + x.group(2), _text)
+        _new = re.sub(r'(data-count="domains-word">)\w+(<)', lambda x: x.group(1) + (_words[_domains] if _domains < len(_words) else str(_domains)) + x.group(2), _new)
+        if _new != _text:
+            open(_path, 'w', encoding='utf-8').write(_new)
+    print(f'posture overview counts: {_checks} checks, {_domains} domains')
 print('rendered guide, licensing, how-it-works, architecture, trial, catalog')

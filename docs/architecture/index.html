@@ -13,10 +13,10 @@
 </head>
 <body>
 <header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="TenantKeep home"><span class="k">TenantKeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/on-call/">On-Call</a><a href="/posture/" aria-current="page">Posture</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
-<nav class="subnav" aria-label="TenantKeep Posture"><div class="wrap"><a href="/posture/">Overview</a><a href="/how-it-works/">How it works</a><a href="/architecture/" aria-current="page">Architecture</a><a href="/guide/">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/">Licensing</a><a href="/trial/">Free trial</a><a href="/posture/#pricing">Pricing</a></div></nav>
+<nav class="subnav" aria-label="TenantKeep Posture"><div class="wrap"><a href="/posture/">Overview</a><a href="/posture/sample-report/">Sample report</a><a href="/guide/">Guide</a><a href="/how-it-works/">How it works</a><a href="/architecture/" aria-current="page">Architecture</a><a href="/catalog/">Catalog</a><a href="/posture/#pricing">Pricing</a><a href="/trial/">Free trial</a><a href="/licensing/">Licensing</a></div></nav>
 <main><article class="doc"><span class="eyebrow">TenantKeep Posture</span><h1>What gets installed, and where</h1><p class="lede">The complete inventory, per way of running it: app registrations, identities and their roles, Azure resources, files on disk, and how to remove every piece.</p>
 <p>The complete inventory of what TenantKeep Posture puts in a customer's environment, per way of running it, and how to
-remove every piece. Nothing on this page phones home; the only thing that ever leaves a tenant is nothing.</p>
+remove every piece. Nothing on this page phones home, and nothing leaves a tenant.</p>
 <h2 id="running-it-locally-no-azure-needed">Running it locally (no Azure needed)</h2>
 <p>An admin runs the module on their own machine with their own sign-in. Nothing is installed in the tenant except the
 consent record for the one app the sign-in goes through.</p>
@@ -32,15 +32,33 @@ consent record for the one app the sign-in goes through.</p>
 <tbody>
 <tr>
 <td>The admin's machine</td>
-<td>The <code>TenantKeep.Posture</code> PowerShell module, an evidence folder per run, a client folder per tenant (profile.json, brand.json, exceptions.json, findings.csv, tenantkeep.lic, imports/)</td>
+<td>The <code>TenantKeep.Posture</code> PowerShell module, an evidence folder per run, a client folder per tenant (profile.json, brand.json, exceptions.json, tenantkeep.lic, imports/)</td>
 <td>Everything the report needs stays here</td>
 <td>Delete the folders</td>
 </tr>
 <tr>
 <td>Entra ID, enterprise applications</td>
-<td><strong>TenantKeep Posture</strong>: the consent record (service principal) for Kainor's multi-tenant public client. Delegated, read-only permissions only, listed in the module's app.json and on the consent screen: the Graph read scopes the collectors use, Exchange.Manage on Exchange Online and on Exchange Online Protection (Purview), AllSites.FullControl on SharePoint Online (what PnP's tenant reads require; it still acts as the admin), user_impersonation on the Teams tenant admin API and on Azure Service Management. No credentials exist for it anywhere</td>
-<td>One sign-in for every service; the app acts as the admin, never on its own</td>
-<td>Delete the enterprise application; the next run says consent is needed</td>
+<td><strong>TenantKeep</strong>: the consent record (service principal) for Kainor's multi-tenant public client, which this report and the TenantKeep On-Call app both sign in to for what they read. It holds what an administrator approved and nothing else. The link Posture gives names Posture's permissions only, the ones under <code>resources</code> in the module's app.json: the Graph read scopes the collectors use (SharePoint tenant settings through Graph's read-only SharePointTenantSettings.Read.All). Every permission on this app is read-only by its name, on every API. No SharePoint, Azure, Teams or Power Platform permission: those are on the apps below. A customer who also uses On-Call approves its reads from On-Call's own link, by name (<code>sharedWith</code> in app.json lists them; two reveal a LAPS password or a BitLocker key to an administrator who already holds the role for it). In such a tenant a token for either product carries what was approved for both, because Microsoft issues one set of permissions per app. Nothing on this app can write, and a test in the repository fails if a scope that is not read-only by name is added, on any API. No credentials exist for it anywhere</td>
+<td>The sign-in for everything read through Microsoft Graph; the app acts as the admin, never on its own</td>
+<td>Delete the enterprise application; the next run says consent is needed. That also signs On-Call out of this tenant</td>
+</tr>
+<tr>
+<td>Entra ID, the same enterprise application, optional</td>
+<td>One more permission on <strong>TenantKeep</strong>, approved from a link of its own and only by a customer who wants the Power BI checks: Tenant.Read.All on the Power BI Service, read-only by name</td>
+<td>The Power BI checks</td>
+<td>Revoke the permission on the enterprise application, or never open the link</td>
+</tr>
+<tr>
+<td>Entra ID, enterprise applications, only where Azure, Teams or Power Platform is read</td>
+<td><strong>TenantKeep Posture for Azure, Teams and Power Platform</strong>: Kainor's second public client (<code>app-services.json</code> in the module), which Posture alone signs in to. Three APIs offer no read-only permission, only one to act as the signed-in administrator, and this app holds those: user_impersonation on Azure Service Management and on the Teams tenant admin API, and, from a link of its own for a customer who wants the Power Platform checks, User on the PowerApps Service. Beside them, the Graph scopes for signing in and no Graph read. The Teams module wants a Graph token and a Teams token from one app, so it is handed this app's Graph token, which carries the sign-in and nothing else; every Graph read of the run goes through <strong>TenantKeep</strong>. They are kept off <strong>TenantKeep</strong> so that app holds read-only permissions only: a refresh token for an app can be redeemed for any API the organisation granted that app, so one broader permission there would reach every tenant that approved it. The module reads each of the three through one entry point that refuses anything but a read (docs/security-review.md). No credentials exist for it anywhere</td>
+<td>The Azure and Teams collectors and the Power Platform checks</td>
+<td>Delete the enterprise application; the next run skips those three and gives the link. An organisation that approved <strong>TenantKeep</strong> before 2026-11-23, when it still named Azure and Teams, removes those older grants with <code>deploy/setup/Remove-PostureStaleGrant.ps1</code></td>
+</tr>
+<tr>
+<td>Entra ID, enterprise applications, optional</td>
+<td><strong>TenantKeep Posture for SharePoint</strong>: Kainor's second public client, the only one that asks for SharePoint full control (AllSites.FullControl, delegated, plus the Graph sign-in scopes). Never consented for the organisation: <code>deploy/setup/Grant-PostureSharePointAccess.ps1</code> adds it, requires assignment and grants it to named admins one at a time, and can turn sign-in to it off between runs. No credentials exist for it anywhere</td>
+<td>The SharePoint admin read (default links, Anyone link expiry, guest expiry, sites, restricted search), which Graph does not return</td>
+<td>The same script with <code>-Remove</code>, or delete the enterprise application</td>
 </tr>
 <tr>
 <td>Entra ID, app registrations, optional</td>
@@ -50,7 +68,7 @@ consent record for the one app the sign-in goes through.</p>
 </tr>
 <tr>
 <td>Entra ID, roles on the admin</td>
-<td>Global Reader covers Entra, Intune and Defender reads; SharePoint Administrator for the SharePoint collector; View-Only Organization Management for Exchange; a Purview read role group for Purview; Reader and Security Reader on Azure subscriptions only if the Azure domain is wanted</td>
+<td>Global Reader covers Entra, Intune and Defender reads; SharePoint Administrator for the SharePoint collector; Global Reader also covers Exchange and most Purview reads, with Purview role groups for Insider Risk, Communication Compliance, audit retention and eDiscovery; Reader and Security Reader on Azure subscriptions only if the Azure domain is wanted; Fabric Administrator (on an account with a Power BI or Fabric licence, the free one counts) and Power Platform Administrator only if the Power Platform and Power BI domain is wanted, since neither product has a read-only role for these settings</td>
 <td>The module reads as the signed-in admin</td>
 <td>Standard role removal</td>
 </tr>
@@ -64,6 +82,15 @@ consent record for the one app the sign-in goes through.</p>
 </table>
 <p>Azure is optional here. With <code>azure: none</code> in the profile, the Azure collector is skipped and the Azure domain reads
 as not applicable; no Azure role is needed.</p>
+<p>What is on the admin's machine is the tenant's whole directory in files: every user, device, group, mailbox and site,
+the report, and for a hybrid tenant the domain's accounts. The run and client folders the module creates are the
+owner's alone on macOS and Linux (mode 700, so no other account on the machine can list or read them). On Windows the
+module changes no permissions: a folder under your profile (the default, <code>~/tenantkeep</code>) is already limited to you,
+SYSTEM and Administrators by the profile's own permissions, and a folder you choose elsewhere keeps what its parent
+grants, so choose one that is yours. While a list is being read there are also <code>.part</code> files and, in <code>logs/</code>, a
+cursor for a list that stopped part way; both hold rows of that list and go when it finishes. The sign-in read's
+checkpoint holds no account names, only keyed hashes. Nothing is encrypted at rest by the module: use the disk's own
+encryption (FileVault, BitLocker), and delete a run folder when its report has been delivered.</p>
 <h2 id="running-it-on-a-schedule-the-customers-own-azure-subscription">Running it on a schedule (the customer's own Azure subscription)</h2>
 <p>The deployment puts one small resource group in the customer's subscription. It is the only Azure footprint, and it
 exists because the schedule needs somewhere to run as a managed identity instead of as a person.</p>
@@ -79,14 +106,14 @@ exists because the schedule needs somewhere to run as a managed identity instead
 <tbody>
 <tr>
 <td>Azure, resource group <code>rg-tenantkeep</code></td>
-<td>Automation account <code>aa-tenantkeep-&lt;env&gt;</code> with a system-assigned managed identity, a PowerShell 7.4 runtime environment holding the module and its dependencies, two runbooks (<code>Invoke-CaSnapshotCycle</code> nightly, <code>Invoke-PostureCycle</code> monthly), schedules, variables (container URLs, organisation, SharePoint admin URL, Purview app id and certificate URL, optional Teams webhook and email settings)</td>
+<td>Automation account <code>aa-tenantkeep-&lt;env&gt;</code> with a system-assigned managed identity, a PowerShell 7.6 runtime environment holding the module and its dependencies, two runbooks (<code>Invoke-CaSnapshotCycle</code> nightly, <code>Invoke-PostureCycle</code> monthly), schedules, variables (container URLs, organisation, SharePoint admin URL, Purview app id and certificate URL, optional Teams webhook and email settings)</td>
 <td>Runs the cycles</td>
 <td>Delete the resource group</td>
 </tr>
 <tr>
 <td>Azure, same resource group</td>
 <td>Storage account with containers <code>ca-snapshots</code>, <code>posture-runs</code>, <code>client</code>, <code>modules</code>; shared-key access disabled, RBAC only</td>
-<td>Evidence, reports, the register, the client files, the module zips</td>
+<td>Evidence, reports, the findings lists, the client files, the module zips</td>
 <td>Same</td>
 </tr>
 <tr>
@@ -103,7 +130,7 @@ exists because the schedule needs somewhere to run as a managed identity instead
 </tr>
 <tr>
 <td>Entra ID, the managed identity</td>
-<td>Graph application roles, all read: Policy, Directory, Group, User, AuditLog, authentication methods, role management, risk, device management, BitLocker key basics, attack simulation, access reviews, entitlement management, lifecycle workflows, PIM for Groups, administrative units, threat hunting, security incidents and events, Sites, Organization, Application, Reports. Exchange.ManageAsApp on Office 365 Exchange Online. Sites.FullControl.All on SharePoint Online. application_access on the Teams tenant admin API. The Global Reader directory role</td>
+<td>Graph application roles, all read: Policy, Directory, Group, User, AuditLog, authentication methods, role management, risk, device management, BitLocker key basics, attack simulation, access reviews, entitlement management, lifecycle workflows, PIM for Groups, administrative units, threat hunting, security incidents and events, SharePoint tenant settings, Intune roles, Defender for Identity health, service health and Message Center, federation settings, agent identities and their blueprints, Organization, Application. Exchange.ManageAsApp on Office 365 Exchange Online. application_access on the Teams tenant admin API. The Global Reader directory role. Only when the admin asks for it with <code>-IncludeSharePointAdminRead</code>, for the site list in the scheduled run: Sites.FullControl.All on SharePoint Online, a standing permission over every site's content that the module only reads with</td>
 <td>Each collector's reads as the identity</td>
 <td>Deleting the Automation account deletes the identity and every assignment with it</td>
 </tr>
@@ -115,15 +142,27 @@ exists because the schedule needs somewhere to run as a managed identity instead
 </tr>
 <tr>
 <td>Entra ID, enterprise applications</td>
-<td><strong>TenantKeep Posture</strong>, as in the local table, if the same customer also runs it locally</td>
-<td>The one sign-in for local runs</td>
-<td>Delete it</td>
+<td><strong>TenantKeep</strong> and <strong>TenantKeep Posture for Azure, Teams and Power Platform</strong>, as in the local table, if the same customer also runs it locally. The scheduled run signs in to neither: it reads as the managed identity</td>
+<td>The sign-ins for local runs</td>
+<td>Delete them</td>
+</tr>
+<tr>
+<td>Optional, Power BI in the scheduled run</td>
+<td>A security group, <strong>TenantKeep Posture (Power BI read)</strong>, with the identity as its one member, named by a Fabric administrator in the Fabric tenant setting &quot;Service principals can access read-only admin APIs&quot;. No role and no API permission on the identity. Power Platform is never read on a schedule</td>
+<td>The Power BI checks in the scheduled report</td>
+<td>Remove the group from the tenant setting and delete the group</td>
 </tr>
 <tr>
 <td>Optional, email alerts</td>
 <td>Mail.Send on the identity, restricted by an Exchange application access policy to one sender mailbox the customer names</td>
 <td>Change alerts and the monthly report by email</td>
 <td>Remove the role and the policy</td>
+</tr>
+<tr>
+<td>Retired, relayed alerts</td>
+<td>The Automation variables <code>RELAY_SENDER_KEY</code> and <code>RELAY_PAIRING_CODES</code>, if set up before 2026-11-15</td>
+<td>Nothing reads them now; phone alerts are TenantKeep On-Call's Instant alerts</td>
+<td>Delete the two variables</td>
 </tr>
 <tr>
 <td>Optional, hybrid tenants</td>
@@ -139,7 +178,8 @@ exists because the schedule needs somewhere to run as a managed identity instead
 <ol>
 <li>Delete the resource group: the Automation account, its identity and every role assignment to it, the storage
 account with every run, the vault and the certificate.</li>
-<li>Delete the Purview app registration and role group, and the TenantKeep Posture enterprise application.</li>
+<li>Delete the Purview app registration and role group, and the TenantKeep enterprise application (keep it if the
+organisation uses TenantKeep On-Call, which signs in to the same one).</li>
 <li>Delete the client and evidence folders on the admin's machine.</li>
 </ol>
 <p>No residue remains: no agents, no scheduled tasks, no browser extensions, no DNS records, no mailboxes.</p>

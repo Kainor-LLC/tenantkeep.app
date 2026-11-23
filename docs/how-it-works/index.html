@@ -13,7 +13,7 @@
 </head>
 <body>
 <header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="TenantKeep home"><span class="k">TenantKeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/on-call/">On-Call</a><a href="/posture/" aria-current="page">Posture</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
-<nav class="subnav" aria-label="TenantKeep Posture"><div class="wrap"><a href="/posture/">Overview</a><a href="/how-it-works/" aria-current="page">How it works</a><a href="/architecture/">Architecture</a><a href="/guide/">Guide</a><a href="/catalog/">Check catalog</a><a href="/licensing/">Licensing</a><a href="/trial/">Free trial</a><a href="/posture/#pricing">Pricing</a></div></nav>
+<nav class="subnav" aria-label="TenantKeep Posture"><div class="wrap"><a href="/posture/">Overview</a><a href="/posture/sample-report/">Sample report</a><a href="/guide/">Guide</a><a href="/how-it-works/" aria-current="page">How it works</a><a href="/architecture/">Architecture</a><a href="/catalog/">Catalog</a><a href="/posture/#pricing">Pricing</a><a href="/trial/">Free trial</a><a href="/licensing/">Licensing</a></div></nav>
 <main><article class="doc"><span class="eyebrow">TenantKeep Posture</span><h1>How it works</h1><p class="lede">One page for the person who has to reason about the whole thing: what runs where, as whom, reading what, writing where.</p>
 <p>One page for the person who has to reason about the whole thing: what runs where, as whom, reading what, writing
 where. The itemised inventory of what each way of running installs, and how to remove it, is docs/footprint.md. The spec (posture-spec.md) says what the product is; this says how it is put together. Dated statements are
@@ -36,7 +36,7 @@ decisions; <code>(verify)</code> marks what has not been proven live yet.</p>
 <tr>
 <td>Check catalog and baselines</td>
 <td><code>checks/</code>, <code>baselines/</code></td>
-<td>Data, not code: 204 checks in 13 domains, baselines that select and weight them, framework crosswalks.</td>
+<td>Data, not code: the checks, one file per domain, baselines that select and weight them, framework crosswalks.</td>
 </tr>
 <tr>
 <td>Report</td>
@@ -44,9 +44,14 @@ decisions; <code>(verify)</code> marks what has not been proven live yet.</p>
 <td>One self-contained HTML file per run (inline CSS and JS, no CDN), plus Markdown and optional PDF.</td>
 </tr>
 <tr>
-<td>Sign-in app <strong>TenantKeep Posture</strong></td>
+<td>Sign-in app <strong>TenantKeep</strong></td>
 <td>one app registration in the Kainor tenant, manifest in <code>TenantKeep.Posture/app.json</code>, registered by <code>deploy/setup/New-PostureClientApp.ps1</code></td>
-<td>A multi-tenant public client with delegated, read-only permissions and no credentials. Customers consent once; <code>Connect-PostureSession</code> signs the admin in to it with PKCE on a loopback port and brokers a token per service from that one sign-in (plan: docs/plan-one-signin.md, 2026-10-22).</td>
+<td>A multi-tenant public client with delegated permissions and no credentials, shared with the TenantKeep On-Call app for what that reads (<code>sharedWith</code> in the manifest). Every permission on it is read-only by its name, on every API; everything that writes lives in other registrations. Customers approve Posture's permissions once, through a link that names them. <code>Connect-PostureSession</code> signs the admin in with PKCE on a loopback port, asking the browser only to sign in, then fetches what the organisation approved with the refresh token and brokers the Graph and Power BI tokens from that sign-in.</td>
+</tr>
+<tr>
+<td>Second app <strong>TenantKeep Posture for Azure, Teams and Power Platform</strong></td>
+<td>one more registration in the Kainor tenant, manifest in <code>TenantKeep.Posture/app-services.json</code>, registered by the same script</td>
+<td>The three APIs that offer no read-only permission (Azure Service Management, the Teams admin API, the Power Platform admin API) are read through this one, which Posture alone signs in to, so the shared app stays read-only on every API. <code>Connect-PostureSession -Services</code> signs the same admin in to it; <code>Start-PostureRun</code> does that by itself when a run reads one of the three and the organisation has approved the app. The Teams module is handed two tokens of this app, its Teams token and a Graph token that carries the sign-in alone, because it refuses a pair from two apps.</td>
 </tr>
 <tr>
 <td>Windows AD collector</td>
@@ -78,34 +83,46 @@ decisions; <code>(verify)</code> marks what has not been proven live yet.</p>
 <h2 id="a-run-end-to-end">A run, end to end</h2>
 <ol>
 <li><strong>Sign in.</strong> Locally, once: <code>Start-PostureRun</code> opens the browser for the admin's sign-in to the TenantKeep Posture
-app, then gets a delegated token per service (Graph, Exchange, SharePoint, Teams, Azure) from the refresh token it
-holds in memory. <code>Connect-PostureService</code> is the only file in the module that opens a session, always with one of
-those tokens, except Purview: Security and Compliance PowerShell issues no delegated token to a third-party app, so
-the Exchange module signs the same admin in a second time with its own app. Exchange and Purview run in a second
-process that receives access tokens over standard input and never the refresh token. In Automation, the account's
-managed identity signs in to everything except Purview (see Identities).</li>
+app, then gets a delegated token per service from the refresh token it holds in memory: Graph, and Power BI where the
+tenant approved it. Azure, Teams and Power Platform get theirs from a second sign-in, to the second app, which
+follows the first when the run reads one of them; SharePoint from its own optional app. <code>Connect-PostureService</code> is the only file in the module that opens a session, always with one of
+those tokens, except Exchange and Purview: Security and Compliance PowerShell issues no delegated token to a
+third-party app, and Exchange Online's only delegated scope reads &quot;Manage&quot; on a consent screen, so both sign the same
+admin in through the Exchange module's own app, which renews its own tokens. Exchange and Purview run in a second
+process that receives access tokens over standard input and never the refresh token. It starts first and signs in
+to Purview first, so that prompt comes in the first minute, then collects alongside the main process; both write
+into one run folder, and <code>errors.txt</code> and the <code>collection.json</code> merge are serialised on a lock file in it. When
+the sign-in ends during a run (a Conditional Access sign-in frequency) and a renewal is refused, the main process
+asks the same admin to sign in again and gives the new refresh token to the thread that renews for the second
+process; with no one to ask, the run stops once and the domains that depend on the sign-in are not recorded as
+finished. In Automation, the account's managed identity signs in to everything except Purview (see Identities).</li>
 <li><strong>Collect.</strong> <code>Invoke-PostureCollection</code> writes one evidence folder per run: JSON and CSV files named after the audit
 plan (<code>04-role-assignments-active.csv</code>, <code>exo-04-antiphish.json</code>, ...), a <code>collection.json</code> manifest with the tenant
 id, account, scopes, API versions and errors, and the Conditional Access snapshot. Every Graph call pins its API
-version. Nothing leaves the customer's environment.</li>
+version. Nothing leaves the customer's environment. A journal (<code>logs/journal.jsonl</code>) records each step as it
+starts, finishes or fails, each file as it is written and each domain as it finishes, and the manifest is
+rewritten after every domain. <code>Resume-PostureRun</code> reads both, so a run whose process stopped is picked up at the
+domain it stopped in, and a file left from an earlier attempt, whose step ran again and did not write it, is
+never read as this run's evidence. Inside the domain being collected again, a long list (users, registration,
+groups, devices, mailboxes, sites) that finished in this run less than a day ago is kept, and a Graph list that
+stopped part way carries on from a cursor (<code>logs/cursor-&lt;list&gt;.json</code>: the next page link, how far each file had
+got, and the step's counts, saved together every few pages and removed when the list finishes).</li>
 <li><strong>Profile.</strong> <code>New-PostureProfile</code> discovers what evidence can tell (licences, platforms, identity model, BYOD,
 Copilot) and asks only what it cannot (third-party tools, thresholds, break-glass accounts, frameworks, audience).
-The result is <code>profile.json</code> in the client folder, beside <code>brand.json</code>, <code>exceptions.json</code>, <code>tenantkeep.lic</code> and
-<code>findings.csv</code>.</li>
+The result is <code>profile.json</code> in the client folder, beside <code>brand.json</code>, <code>exceptions.json</code> and <code>tenantkeep.lic</code>.</li>
 <li><strong>Evaluate.</strong> The engine reads the catalog, applies the baseline, asks one fact provider per domain for facts and
 affected objects from the evidence, evaluates each check's pass expression against thresholds, applies exceptions
 (accepted risk counts as a pass), third-party coverage and licence applicability. <code>checks.json</code> records every
 result with its reason, evidence files and affected list.</li>
 <li><strong>Report.</strong> <code>New-PostureReport</code> builds a model (score, headline numbers, domain scorecards, top risks, admins,
 Copilot readiness, Conditional Access, recommendations, trend against a previous run, crosswalk, appendix) and
-renders it. <code>Export-PostureFindings</code> writes the register, merging owner, status, effort and dependency by check id
-from the previous register.</li>
+renders it. <code>Export-PostureFindings</code> writes findings.csv, the failing checks most severe first, rebuilt each run.</li>
 <li><strong>Keep.</strong> Locally the run folder stays under <code>~/tenantkeep/evidence/</code>. In Automation it is uploaded to the
-<code>posture-runs</code> container, the register is written back to the <code>client</code> container, old runs are pruned.</li>
+<code>posture-runs</code> container and old runs are pruned.</li>
 </ol>
 <h2 id="identities-and-permissions">Identities and permissions</h2>
 <ul>
-<li><strong>Local runs</strong> use the signed-in admin's delegated permissions through the TenantKeep Posture app: every token is
+<li><strong>Local runs</strong> use the signed-in admin's delegated permissions through the TenantKeep app: every token is
 that admin's and goes no further than their roles. Global Reader covers most reads; Exchange needs View-Only
 Organization Management, SharePoint the SharePoint Administrator role, Purview a compliance read role, Azure Reader
 and Security Reader. The app itself has no credentials, so there is nothing in it to steal; what Kainor controls is
@@ -139,16 +156,14 @@ build state, release, development or modified, in every report header. A label, 
 <h2 id="storage-layout-in-automation">Storage layout in Automation</h2>
 <pre><code>&lt;storage account&gt;/ca-snapshots/&lt;stamp&gt;-ca/...        nightly Conditional Access runs
 &lt;storage account&gt;/posture-runs/&lt;stamp&gt;/...           monthly posture runs: evidence, checks.json, report.html, report.md, findings.csv
-&lt;storage account&gt;/client/                            profile.json, brand.json, exceptions.json, tenantkeep.lic, findings.csv, hybrid/ad-*
+&lt;storage account&gt;/client/                            profile.json, brand.json, exceptions.json, tenantkeep.lic, hybrid/ad-*
 &lt;storage account&gt;/modules/                           module zips imported into the runtime environment
 </code></pre>
-<h2 id="the-report-site-option-b-opt-in-decided-2026-10-15-being-built">The report site (Option B opt-in, decided 2026-10-15, being built)</h2>
-<p>The report is a file, so until now &quot;save an exception&quot; meant editing <code>exceptions.json</code> by hand. The report site makes
-the browser the place of record: a small web app in the customer's subscription, signed in with the customer's own
-Entra accounts, that serves the latest report and accepts saves. Exceptions, the register (owner, status, effort,
-dependency) and the tenant configuration (thresholds, third-party tools, baseline, break-glass accounts, frameworks)
-are written to the <code>client</code> container, which is exactly what the next scheduled run reads. Recording an exception
-re-scores the page immediately; the next run makes it permanent. Design details are in docs/report-site.md once built.</p>
+<h2 id="recording-decisions">Recording decisions</h2>
+<p>The report is a file and writes nothing. Accepted risks live in <code>exceptions.json</code> and review dates under
+<code>attestations</code> in <code>profile.json</code>, both in the client folder (or the <code>client</code> container for Automation), and the next
+run reads them. A browser-side register and a hosted report site that accepted saves were both dropped on
+2026-11-20: saving from a page and reopening it was more trouble than the files it replaced.</p>
 <h2 id="what-is-still-manual">What is still manual</h2>
 <ul>
 <li>The Windows AD collector runs on a domain-joined machine and its files are copied into the evidence folder (local)
