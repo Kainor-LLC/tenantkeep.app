@@ -338,8 +338,11 @@ another.</p>
 <p>How the one combination is chosen. Every combination that works is built from the rules in <code>licensing/</code>: it covers
 every chosen goal, brings what its own licences need first, and takes away no goal the tenant meets today. Then:</p>
 <ul>
-<li><strong>On function alone</strong>, which is what every run does unless you give it prices: the fewest licences, then keeping
-the suite the tenant holds, then the least overlap with other products.</li>
+<li><strong>On function alone</strong>, which is what every run does unless you give it prices: first, nothing nobody asked for.
+A suite is made of products (Microsoft 365 E7 is E5 with Copilot, Entra Suite and Agent 365), and a suite that
+would bring a product the tenant neither holds nor needs for a chosen goal is passed over when something else
+does the job, so two gaps are not answered with E7. Then the fewest licences, then keeping the suite the tenant
+holds, then the least overlap with other products.</li>
 <li><strong>With a price file of your own</strong>, the lowest total for a user, then the same order. Only when every licence in the
 comparison has a price; if one is missing the whole choice goes back to function, and the run tells you which.</li>
 </ul>
@@ -407,6 +410,9 @@ time is listed under &quot;No answer in this run&quot;: it is neither a fix nor 
 between the two runs and the check catalog changed with it, the view says so, and lists the results that moved
 because a check changed under &quot;Changed with the catalog&quot;, each with what changed. The Conditional Access snapshot in each folder also feeds Compare-PostureCaSnapshot for a policy-level
 diff, and the scheduled cycle in deploy/schedules runs that nightly with a Teams or email alert.</p>
+<div class="shots">
+  <figure class="shot wide"><img src="/assets/posture/report-trend.jpg" width="1400" height="940" loading="lazy" alt="The Trend view: the score before and after, three checks that started failing, six resolved, and the affected counts that moved."><figcaption>Trend, three months on: what was fixed, what slipped, and what moved. The sample report is a first run, so this picture comes from a second run of the same made-up tenant.</figcaption></figure>
+</div>
 <h2 id="a.without-azure">9a. Without Azure</h2>
 <p>Not every organisation has, or wants, anything in Azure. Local runs need no Azure at all: with <code>azure: none</code> in the
 profile (the wizard sets it when no subscription is in scope) the Azure collector is skipped and the Azure domain
