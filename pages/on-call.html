@@ -36,7 +36,7 @@
         <article class="rule"><h3>Your sign-in, not ours</h3><p>Delegated Microsoft authentication only. The app can do only what your account can already do, and every action lands in your own tenant's audit log.</p></article>
         <article class="rule"><h3>A read-only sign-in</h3><p>The app signs in through an app registration that holds read permissions only. Anything that changes your tenant goes through a separate registration that your organization approves separately, or never approves at all.</p></article>
         <article class="rule"><h3>No vendor server in the credential path</h3><p>Passwords and keys travel from Microsoft Graph to your device and are never written to disk. No analytics, no telemetry, no crash reporting, no account to create.</p></article>
-        <article class="rule"><h3>Verifiable</h3><p>The source is published, and <a href="/on-call/how-it-works/">every permission is listed with its reason</a>. Retrieve a password and watch the read appear in your own audit log.</p></article>
+        <article class="rule"><h3>Verifiable</h3><p>The source is published, and <a href="/on-call/how-it-works/">every permission is listed with its reason</a>. Retrieve a password and watch the read appear in your own audit log. One component is Microsoft's and has no published source: the Intune App SDK, behind <a href="/on-call/app-protection/">app protection</a>.</p></article>
       </div>
     </div>
   </section>
@@ -69,6 +69,7 @@
         <article class="rule"><h3>Off until you turn it on</h3><p>Each kind of action has its own switch and its own Microsoft approval. An organization that wants a read-only tool approves nothing more and has one.</p></article>
         <article class="rule"><h3>Checked before it is sent</h3><p>Your role is checked first, destructive actions need the name typed, and there is a ten-second window to undo during which nothing has left the phone.</p></article>
         <article class="rule"><h3>Managed by Intune if you want</h3><p>An app configuration policy can turn modules off, set the confirmation level, and pin the app to your tenant.</p></article>
+        <article class="rule"><h3>Protected by Intune, on a phone you do not manage</h3><p>New in 2.0: an Intune app protection policy can require a PIN, stop copying out of the app, and remove what it holds, with no device enrollment. <a href="/on-call/app-protection/">How it works, and what it costs in trust.</a></p></article>
       </div>
     </div>
   </section>

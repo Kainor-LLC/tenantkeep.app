@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TenantKeep On-Call · Architecture: what runs where, and as whom</title>
-<meta name="description" content="How TenantKeep On-Call is built: the app and Microsoft with nothing between them, eight app registrations with one read-only, what is kept on the device, and the one hosted service.">
+<meta name="description" content="How TenantKeep On-Call is built: the app and Microsoft with nothing between them, nine app registrations with one read-only, what is kept on the device, and the one hosted service.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23131E2E'/%3E%3Ctext x='32' y='45' font-family='Arial Narrow, Arial, sans-serif' font-size='38' font-weight='700' fill='%23D9480F' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <header class="top"><div class="wrap"><div class="topbar"><a class="brand" href="/" aria-label="TenantKeep home"><span class="k">TenantKeep</span><span class="llc">by Kainor</span></a><nav aria-label="Site"><a href="/on-call/" aria-current="page">On-Call</a><a href="/posture/">Posture</a><a href="/#pricing">Pricing</a><a href="https://kainor.com">Kainor</a></nav></div></div></header>
-<nav class="subnav" aria-label="TenantKeep On-Call"><div class="wrap"><a href="/on-call/">Overview</a><a href="/on-call/guide/">Guide</a><a href="/on-call/how-it-works/">How it works</a><a href="/on-call/architecture/" aria-current="page">Architecture</a><a href="/on-call/pricing/">Pricing</a><a href="/on-call/glossary/">Sign-in error glossary</a><a href="/consent/">Approve the apps</a></div></nav>
+<nav class="subnav" aria-label="TenantKeep On-Call"><div class="wrap"><a href="/on-call/">Overview</a><a href="/on-call/guide/">Guide</a><a href="/on-call/how-it-works/">How it works</a><a href="/on-call/architecture/" aria-current="page">Architecture</a><a href="/on-call/app-protection/">App protection</a><a href="/on-call/pricing/">Pricing</a><a href="/on-call/glossary/">Sign-in error glossary</a><a href="/consent/">Approve the apps</a></div></nav>
 <main><article class="doc"><span class="eyebrow">TenantKeep On-Call</span><h1>What Runs Where, and as Whom</h1><p class="lede">The structure of TenantKeep On-Call, for the person deciding whether to let it into a tenant.</p><p>TenantKeep On-Call is an iPhone and iPad app that talks to Microsoft as the administrator holding it. This page is the layout of the whole thing: what runs where, who each part runs as, and what each part can see. <a href="/on-call/how-it-works/">How it works</a> lists every permission and when it is asked for. This page is about the structure those permissions sit in.</p>
 
 <h2 id="the-whole-system">The Whole System</h2>
@@ -23,7 +23,7 @@
   <div class="node"><b>Microsoft</b><span>Entra ID for sign-in, Microsoft Graph for your tenant's data</span></div>
 </div>
 <p>That is the system for everything you read and everything you change. No Kainor server sits between the app and Microsoft, so a password, a recovery key or a sign-in log goes from Microsoft to the device in your hand and nowhere else.</p>
-<p>The app talks to eight hosts in all. Six are off until something you do turns them on.</p>
+<p>The app's own code talks to eight hosts in all. Six are off until something you do turns them on. Microsoft's Intune App SDK, inside the app from version 2.0, makes requests of its own to Microsoft; they are the last two rows.</p>
 <table class="cards">
   <thead><tr><th>Connection</th><th>When</th><th>What crosses</th></tr></thead>
   <tbody>
@@ -31,6 +31,8 @@
     <tr><td data-label="Connection">Four public feeds<br><code>www.cisa.gov</code>, <code>api.msrc.microsoft.com</code>, <code>isc.sans.edu</code>, <code>www.bleepingcomputer.com</code></td><td data-label="When">When you open the Threat Digest, and in the background if you turn on its notifications</td><td data-label="What crosses">A request for a public file. No token, no tenant ID, no cookie.</td></tr>
     <tr><td data-label="Connection">Kainor's licence endpoint<br><code>kainor-lapslock-prod-func.azurewebsites.net</code></td><td data-label="When">Only after you activate an organization licence, then about monthly</td><td data-label="What crosses">A version number and your tenant ID. A signed licence statement comes back.</td></tr>
     <tr><td data-label="Connection">Kainor's alert service<br><code>kainor-watch-prod-func.azurewebsites.net</code></td><td data-label="When">Only after an administrator turns on Instant Alerts, then about daily</td><td data-label="What crosses">The phone's push token, its public key, the break-glass accounts you named, and a Microsoft token that can register a phone and read nothing.</td></tr>
+    <tr><td data-label="Connection">Microsoft's settings for its Intune App SDK<br><code>config.edge.skype.com</code></td><td data-label="When">Every install, when the app opens and again from time to time. Made by Microsoft's SDK, not by Kainor's code</td><td data-label="What crosses">An identifier the SDK makes up for the install, its version and the iOS version. No sign-in, no account, no tenant.</td></tr>
+    <tr><td data-label="Connection">Intune's app management service<br>under <code>manage.microsoft.com</code></td><td data-label="When">Only when your organization applies an <a href="/on-call/app-protection/">app protection policy</a></td><td data-label="What crosses">The SDK's own requests, as the person signed in: enrolling the app, fetching the policy, checking in.</td></tr>
   </tbody>
 </table>
 <p>An installation on the free tier that never turns on Instant Alerts never contacts Kainor. The <a href="https://github.com/Kainor-LLC/LAPSlock/blob/main/docs/NETWORK-TRANSPARENCY.md">network transparency document</a> lists each host and shows how to confirm the list with a proxy in about ten minutes.</p>
@@ -38,7 +40,7 @@
 <h2 id="who-it-runs-as">Who It Runs As</h2>
 <p>You. Every request to Microsoft Graph carries a token issued to the person signed in, so your Conditional Access policies, your role assignments and your audit log apply to each one. The phone app holds no application permission: it has no access of its own, and it can do nothing while nobody is signed in.</p>
 
-<h3 id="eight-app-registrations">Eight App Registrations, One of Them Read-Only</h3>
+<h3 id="eight-app-registrations">Nine App Registrations, One of Them Read-Only</h3>
 <p>Microsoft puts every permission an organization has granted an app into the tokens it issues that app, whichever permission a request named. Asking for less does not get less. So a sign-in that cannot change your tenant has to be a separate app, and On-Call has one.</p>
 <div class="flow" role="img" aria-label="Reads go through the read-only app. A change goes through a separate app, only after you turn that kind of action on.">
   <div class="node you"><b>On-Call</b><span>one person, signed in once</span></div>
@@ -145,7 +147,7 @@
   <li><strong>The source.</strong> The <a href="https://github.com/Kainor-LLC/LAPSlock">repository</a> is public, including the code that handles credentials, the alert service and the relay.</li>
   <li><strong>The network.</strong> Put a proxy on your phone and compare what you see with the table at the top of this page.</li>
   <li><strong>Your audit log.</strong> Reveal a password and find the read in Entra ID, under your own name, exactly as if you had used the admin center.</li>
-  <li><strong>The permissions.</strong> Open any of the eight apps under Enterprise applications in Entra ID and read what your organization granted it.</li>
+  <li><strong>The permissions.</strong> Open any of the nine apps under Enterprise applications in Entra ID and read what your organization granted it.</li>
   <li><strong>The short version for a security review.</strong> The <a href="https://github.com/Kainor-LLC/LAPSlock/blob/main/docs/SECURITY-ONE-PAGER.md">security one-pager</a>.</li>
 </ul>
 </article></main>

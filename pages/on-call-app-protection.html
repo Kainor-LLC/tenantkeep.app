@@ -1,0 +1,46 @@
+<div class="callout"><p><strong>Which version.</strong> App protection is new in version 2.0, which is in TestFlight. The App Store has version 1.0, named LAPSlock, until 2.0 is released.</p></div>
+
+<p>Most administrators carry their own phone. An Intune app protection policy reaches TenantKeep On-Call on a phone your organization does not manage: it can require a PIN to open the app, stop what is copied in it from being pasted elsewhere, and remove everything the app holds.</p>
+
+<h2 id="the-one-closed-source-component">The One Closed-Source Component</h2>
+<p>App protection is enforced by Microsoft's Intune App SDK, which Microsoft ships as a signed binary with no source. It is the only part of the app whose source is not published. Everything Kainor wrote is in the repository to read; this one component is Microsoft's, and you are trusting Microsoft for it, as you already do for Intune.</p>
+<ul>
+  <li><strong>What holds it in place.</strong> The iPhone and iPad app links it. None of the app's modules can import it, the one that handles passwords included, and the Mac menu bar app, the watch app and the notification extension do not link it. One file in the app touches it, and a build check fails if any of that changes.</li>
+  <li><strong>What that does not give you.</strong> The SDK runs inside the app. Once a policy is in force it sits between the app and the clipboard, files, the network and the Keychain, for the whole app, the screen that shows a password included. That is how a policy is enforced, and it is what an organization asks for when it applies one.</li>
+</ul>
+
+<h2 id="with-no-policy">With No Policy</h2>
+<p>The app behaves as it does without the SDK, with two exceptions that apply to every install:</p>
+<ul>
+  <li><strong>One request to Microsoft when the app opens.</strong> The SDK fetches its own settings from <code>config.edge.skype.com</code>, and again from time to time. The request carries an identifier the SDK makes up for the install, its version and the iOS version. It carries no sign-in, no account, no tenant and nothing from the app. Microsoft provides no way to turn it off.</li>
+  <li><strong>The SDK's own storage.</strong> It keeps a few items of its own on the device. The app neither reads nor writes them.</li>
+</ul>
+<p>The SDK's usage reporting to Microsoft is turned off.</p>
+
+<h2 id="turning-it-on">Turning It On</h2>
+<ol>
+  <li><strong>Approve TenantKeep App Protection</strong> on the <a href="/consent/#oncall-appProtection">approval page</a>. It is an app of its own that holds one permission, on Microsoft's app management service, which lets the SDK read and write the signed-in person's own app management record. It gives no access to your directory, and it is separate so that the app you sign in through still holds read permissions only.</li>
+  <li><strong>Create an iOS app protection policy</strong> in Intune. Add TenantKeep On-Call as a custom app by its bundle ID, <code>com.kainor.lapslock</code>, and assign the policy to a group. Each person needs an Intune licence.</li>
+  <li><strong>Sign in.</strong> Where the organization approved the app for everyone, On-Call asks Intune by itself at sign-in. Otherwise the person turns it on once in Settings, General, Intune App Protection. The first time a policy arrives, the app closes so it can start again protected.</li>
+</ol>
+
+<h2 id="what-a-policy-changes">What a Policy Changes</h2>
+<table>
+  <thead><tr><th>What</th><th>Under a Policy</th></tr></thead>
+  <tbody>
+    <tr><td>Opening the app, copying out</td><td>A PIN or biometrics to open it, and limits on copying and sharing out of it, enforced by Microsoft's SDK.</td></tr>
+    <tr><td>Notifications</td><td>If the policy keeps organization data out of notifications, every alert says only that there is one. If it stops notifications, the app posts none and unregisters the phone from Instant alerts.</td></tr>
+    <tr><td>Apple Watch</td><td>A policy cannot reach the watch, so the phone sends it nothing while one is in force, unless you allow it with a setting.</td></tr>
+    <tr><td>Configuration</td><td>The <a href="https://github.com/Kainor-LLC/LAPSlock/blob/main/docs/MANAGED-CONFIG.md">managed settings</a> also arrive through an app configuration policy for managed apps, so they reach a phone that is not enrolled.</td></tr>
+    <tr><td>A selective wipe</td><td>The app removes every sign-in, the Instant alerts key, its licence record, notification choices, the shift log, saved searches, its files and its settings.</td></tr>
+  </tbody>
+</table>
+<p>Settings, General shows whether a policy is applied and what it is doing to notifications and the watch.</p>
+
+<h2 id="what-it-does-not-do">What It Does Not Do</h2>
+<ul>
+  <li><strong>It is not how you stop a breach.</strong> A wipe reaches the app at its next check-in with Intune, which can be half an hour away and needs the app open. To cut someone off now, block their sign-in and revoke their sessions in Entra ID. Nothing secret is stored on the phone to begin with: each password or key is a live request to Microsoft behind Face ID.</li>
+  <li><strong>Conditional Access cannot require it yet.</strong> The grant "Require app protection policy" works for apps Microsoft has listed, and On-Call is not listed yet. You can apply a policy; you cannot yet make sign-in depend on one.</li>
+  <li><strong>The Mac.</strong> The Mac menu bar app has no app protection.</li>
+  <li><strong>A person can decline.</strong> Without Conditional Access, someone who never signs in to TenantKeep App Protection is not protected. Approving it for the whole organization makes the app do that without asking.</li>
+</ul>

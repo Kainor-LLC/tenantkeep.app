@@ -107,6 +107,8 @@ RELINK = [
     ('href="/app-registrations.json"', 'href="https://kainor.com/app-registrations.json"'),
     ('href="/instant-alerts/', 'href="https://kainor.com/instant-alerts/'),
     ('href="/"', 'href="/on-call/"'),
+    # The app protection notes are a page of this site, so the link works before the repository's main has the file.
+    ('href="https://github.com/Kainor-LLC/LAPSlock/blob/main/docs/APP-PROTECTION.md"', 'href="/on-call/app-protection/"'),
 ]
 def oncall_page(source, dest, current, narrow=True):
     text = open(os.path.join(ONCALL_DOCS, source), encoding='utf-8').read()
@@ -159,9 +161,12 @@ oncall_doc('on-call-guide.html', 'guide', 'TenantKeep On-Call · Using it, step 
            'From the first sign-in to the first action in TenantKeep On-Call, with pictures of each screen from the app\'s demo data.',
            'Using TenantKeep On-Call', 'From the first launch to the first action, with what you will see on the way.')
 oncall_doc('on-call-architecture.html', 'architecture', 'TenantKeep On-Call · Architecture: what runs where, and as whom',
-           'How TenantKeep On-Call is built: the app and Microsoft with nothing between them, eight app registrations with one read-only, what is kept on the device, and the one hosted service.',
+           'How TenantKeep On-Call is built: the app and Microsoft with nothing between them, nine app registrations with one read-only, what is kept on the device, and the one hosted service.',
            'What Runs Where, and as Whom', 'The structure of TenantKeep On-Call, for the person deciding whether to let it into a tenant.')
-print('rendered on-call: guide, architecture')
+oncall_doc('on-call-app-protection.html', 'app-protection', 'TenantKeep On-Call · Intune app protection',
+           'How an Intune app protection policy reaches TenantKeep On-Call on a phone you do not manage, what Microsoft\'s Intune App SDK does inside the app, and what a policy changes.',
+           'Intune App Protection', 'A PIN, limits on copying out, and removal of what the app holds, on a phone your organization does not manage. New in version 2.0.')
+print('rendered on-call: guide, architecture, app protection')
 
 # --- the pages with a hero: the home page and each product's overview
 # Hand-written in pages/, with <!--TOPBAR--> where the top row goes, so a change to the navigation reaches them too.

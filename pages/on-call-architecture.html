@@ -7,7 +7,7 @@
   <div class="node"><b>Microsoft</b><span>Entra ID for sign-in, Microsoft Graph for your tenant's data</span></div>
 </div>
 <p>That is the system for everything you read and everything you change. No Kainor server sits between the app and Microsoft, so a password, a recovery key or a sign-in log goes from Microsoft to the device in your hand and nowhere else.</p>
-<p>The app talks to eight hosts in all. Six are off until something you do turns them on.</p>
+<p>The app's own code talks to eight hosts in all. Six are off until something you do turns them on. Microsoft's Intune App SDK, inside the app from version 2.0, makes requests of its own to Microsoft; they are the last two rows.</p>
 <table>
   <thead><tr><th>Connection</th><th>When</th><th>What crosses</th></tr></thead>
   <tbody>
@@ -15,6 +15,8 @@
     <tr><td>Four public feeds<br><code>www.cisa.gov</code>, <code>api.msrc.microsoft.com</code>, <code>isc.sans.edu</code>, <code>www.bleepingcomputer.com</code></td><td>When you open the Threat Digest, and in the background if you turn on its notifications</td><td>A request for a public file. No token, no tenant ID, no cookie.</td></tr>
     <tr><td>Kainor's licence endpoint<br><code>kainor-lapslock-prod-func.azurewebsites.net</code></td><td>Only after you activate an organization licence, then about monthly</td><td>A version number and your tenant ID. A signed licence statement comes back.</td></tr>
     <tr><td>Kainor's alert service<br><code>kainor-watch-prod-func.azurewebsites.net</code></td><td>Only after an administrator turns on Instant Alerts, then about daily</td><td>The phone's push token, its public key, the break-glass accounts you named, and a Microsoft token that can register a phone and read nothing.</td></tr>
+    <tr><td>Microsoft's settings for its Intune App SDK<br><code>config.edge.skype.com</code></td><td>Every install, when the app opens and again from time to time. Made by Microsoft's SDK, not by Kainor's code</td><td>An identifier the SDK makes up for the install, its version and the iOS version. No sign-in, no account, no tenant.</td></tr>
+    <tr><td>Intune's app management service<br>under <code>manage.microsoft.com</code></td><td>Only when your organization applies an <a href="/on-call/app-protection/">app protection policy</a></td><td>The SDK's own requests, as the person signed in: enrolling the app, fetching the policy, checking in.</td></tr>
   </tbody>
 </table>
 <p>An installation on the free tier that never turns on Instant Alerts never contacts Kainor. The <a href="https://github.com/Kainor-LLC/LAPSlock/blob/main/docs/NETWORK-TRANSPARENCY.md">network transparency document</a> lists each host and shows how to confirm the list with a proxy in about ten minutes.</p>
@@ -22,7 +24,7 @@
 <h2 id="who-it-runs-as">Who It Runs As</h2>
 <p>You. Every request to Microsoft Graph carries a token issued to the person signed in, so your Conditional Access policies, your role assignments and your audit log apply to each one. The phone app holds no application permission: it has no access of its own, and it can do nothing while nobody is signed in.</p>
 
-<h3 id="eight-app-registrations">Eight App Registrations, One of Them Read-Only</h3>
+<h3 id="eight-app-registrations">Nine App Registrations, One of Them Read-Only</h3>
 <p>Microsoft puts every permission an organization has granted an app into the tokens it issues that app, whichever permission a request named. Asking for less does not get less. So a sign-in that cannot change your tenant has to be a separate app, and On-Call has one.</p>
 <div class="flow" role="img" aria-label="Reads go through the read-only app. A change goes through a separate app, only after you turn that kind of action on.">
   <div class="node you"><b>On-Call</b><span>one person, signed in once</span></div>
@@ -129,6 +131,6 @@
   <li><strong>The source.</strong> The <a href="https://github.com/Kainor-LLC/LAPSlock">repository</a> is public, including the code that handles credentials, the alert service and the relay.</li>
   <li><strong>The network.</strong> Put a proxy on your phone and compare what you see with the table at the top of this page.</li>
   <li><strong>Your audit log.</strong> Reveal a password and find the read in Entra ID, under your own name, exactly as if you had used the admin center.</li>
-  <li><strong>The permissions.</strong> Open any of the eight apps under Enterprise applications in Entra ID and read what your organization granted it.</li>
+  <li><strong>The permissions.</strong> Open any of the nine apps under Enterprise applications in Entra ID and read what your organization granted it.</li>
   <li><strong>The short version for a security review.</strong> The <a href="https://github.com/Kainor-LLC/LAPSlock/blob/main/docs/SECURITY-ONE-PAGER.md">security one-pager</a>.</li>
 </ul>
