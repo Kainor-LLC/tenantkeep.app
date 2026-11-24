@@ -229,11 +229,16 @@
 .doc blockquote{border-left:4px solid var(--signal);margin:0 0 16px;padding:4px 16px;color:var(--steel)}
 .doc a{color:var(--signal)}
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:22px}
-.product{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px}
+/* A card is a column, so the row of links sits at its foot and the three rows line up
+   whatever the length of the text above them. */
+.product{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column}
 .product h3{font-family:'Barlow Condensed',system-ui,sans-serif;font-weight:700;text-transform:uppercase;font-size:24px;margin-bottom:6px}
-.product .state{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--steel)}
+.product .state{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--steel)}
 .product p{color:var(--ink-soft);margin:10px 0 14px;font-size:16px}
-.product .links a{margin-right:14px;font-weight:600;color:var(--signal);text-decoration:none}
+/* The links are written with nothing between them, so as plain inline text the row could not
+   break and ran out of the card. As a wrapping row it cannot. */
+.product .links{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:auto}
+.product .links a{font-weight:600;color:var(--signal);text-decoration:none}
 .product .links a:hover{text-decoration:underline}
 .plans.four{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
 .plan .alt{display:block;margin-top:10px;font-size:14px;color:var(--steel)}
@@ -319,3 +324,10 @@ nav a[aria-current]{text-decoration:underline;text-underline-offset:6px}
   .doc table.cards td[data-label]:not(:first-child)::before{content:attr(data-label);display:block;margin-top:6px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--steel)}
 }
 
+/* On a phone the site's name takes the first row of the top bar and its four links the second.
+   Side by side, the links were squeezed into a column and pushed the page wider than the screen. */
+@media (max-width:640px){
+  .topbar{flex-wrap:wrap;row-gap:10px}
+  .topbar nav{width:100%;gap:4px 20px}
+  .topbar nav a{margin-left:0}
+}
