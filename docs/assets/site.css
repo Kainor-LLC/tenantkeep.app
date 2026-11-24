@@ -254,6 +254,9 @@ nav a[aria-current]{text-decoration:underline;text-underline-offset:6px}
 .doc details summary{cursor:pointer;color:var(--signal)}
 .doc .appid{font-size:.9em;opacity:.75}
 
+/* a quiet line under the hero's buttons */
+.hero-note{font-size:13.5px;line-height:1.55;color:var(--mist);margin:16px 0 0;max-width:560px}
+
 /* the second navigation row, one per product */
 .subnav{background:#0D1626;border-top:1px solid var(--line-dark)}
 .subnav .wrap{display:flex;gap:26px;overflow-x:auto;padding-top:12px;padding-bottom:12px;white-space:nowrap;scrollbar-width:none}

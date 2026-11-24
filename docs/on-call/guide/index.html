@@ -16,11 +16,13 @@
 <nav class="subnav" aria-label="TenantKeep On-Call"><div class="wrap"><a href="/on-call/">Overview</a><a href="/on-call/guide/" aria-current="page">Guide</a><a href="/on-call/how-it-works/">How it works</a><a href="/on-call/architecture/">Architecture</a><a href="/on-call/pricing/">Pricing</a><a href="/on-call/glossary/">Sign-in error glossary</a><a href="/consent/">Approve the apps</a></div></nav>
 <main><article class="doc"><span class="eyebrow">TenantKeep On-Call</span><h1>Using TenantKeep On-Call</h1><p class="lede">From the first launch to the first action, with what you will see on the way.</p><p>Every picture on this page is the app's own demo data: no real organization, person or device appears in any of them.</p>
 
+<div class="callout"><p><strong>Which version.</strong> This guide describes version 2.0, which is in TestFlight. Until it is released, the App Store has version 1.0, named LAPSlock, which covers passwords, recovery keys and role activation.</p></div>
+
 <div class="callout"><p><strong>In a hurry?</strong> Install the app, tap <strong>Explore with demo data</strong>, and look around before anyone approves anything. Then come back to <a href="#sign-in">Sign In</a>.</p></div>
 
 <h2 id="before-you-start">1. Before You Start</h2>
 <ul>
-  <li><strong>An iPhone or iPad</strong> on iOS 17 or later, with Face ID, Touch ID or a passcode set.</li>
+  <li><strong>An iPhone or iPad</strong> on iOS 18 or later, with Face ID, Touch ID or a passcode set.</li>
   <li><strong>Microsoft Entra ID and Microsoft Intune.</strong> The device list comes from Intune and the credentials from Entra ID.</li>
   <li><strong>Windows LAPS backing up to Microsoft Entra ID</strong>, if you want local administrator passwords. LAPS that backs up to on-premises Active Directory cannot be read by anything outside it.</li>
   <li><strong>A role that can read what you want to see.</strong> For LAPS passwords, Cloud Device Administrator is the least privileged role that can. The app never gives you access your account does not already have.</li>
