@@ -72,8 +72,8 @@ app provides. <code>Start-PostureRun -TeamsAppSignIn</code> lets the module sign
 browser window on Windows, a device code elsewhere, because the Teams module has no browser sign-in outside
 Windows. It asks when the run reaches Teams, near its end, so stay for it. Many tenants block device code sign-in
 with Conditional Access, and should: there the code is refused (seen on macOS, 2026-11-22), the run says so once,
-and the two reads can be collected from Windows instead. Without the switch those two steps say &quot;Not readable with
-this sign-in&quot; and the check has no answer. The browser sign-in on Windows has not been run live yet (verify).</li>
+and the two reads can be collected from Windows instead. Without the switch Run Health lists those two steps as
+needing the Teams sign-in, with the command that reads them, and the check has no answer. The browser sign-in on Windows has not been run live yet (verify).</li>
 <li>While it runs: a progress bar shows the domain and step under way, the time so far and the time left (estimated
 from this tenant's last run; rough on the first), with a second bar for Exchange and Purview. The computer is kept
 from idle sleep until the run ends (<code>caffeinate</code> on macOS, <code>systemd-inhibit</code> on Linux, the Windows power request
@@ -274,8 +274,11 @@ told so, not left to wonder.</p>
 <p>A step that fails is recorded with its cause: needs a role, needs a licence, sign-in ran out, throttled, network,
 not readable with this sign-in, or not set up in this tenant. The console ends with the failures grouped by cause and what to do, the report opens
 with a banner, and its Run Health view lists each step with the role, delegated permission or licence it needs
-(from the module's requirements.json) and Microsoft's own message. Checks that depend on a failed step say not
-evaluated, never pass or fail.</p>
+(from the module's requirements.json) and Microsoft's own message. Microsoft answers &quot;forbidden&quot; both for a missing
+permission and for a missing role, so the run records which of the step's permissions the sign-in carried. A step
+that lacked one reads &quot;Needs a permission&quot; and links to where a Global Administrator approves the app again; a step
+that had them all is told which roles to grant. Checks that depend on a failed step say not evaluated, never pass
+or fail.</p>
 <p>After granting what was missing, collect only what failed, into the same run:</p>
 <pre><code class="language-powershell">Resume-PostureRun                      # the newest run
 Resume-PostureRun -Client contoso      # the newest run of one client, when there are several
