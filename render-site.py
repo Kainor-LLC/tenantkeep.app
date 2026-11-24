@@ -18,12 +18,14 @@ from urllib.parse import quote
 ONCALL = json.load(open(os.path.join(root, 'templates', 'oncall-app-registrations.json')))
 def consent_link(entry):
     # Named permissions, never .default: on the read-only app, which Posture shares, .default would ask for both products'.
-    scopes = ['https://graph.microsoft.com/' + s for s in entry['scopes']] + entry.get('ownScopes', [])
+    # serviceScopes: a permission on a Microsoft service other than Graph, already written with the service in front.
+    scopes = (['https://graph.microsoft.com/' + s for s in entry['scopes']] + entry.get('ownScopes', [])
+              + entry.get('serviceScopes', []))
     return ('https://login.microsoftonline.com/organizations/v2.0/adminconsent?client_id=' + entry['clientId']
             + '&scope=' + quote(' '.join(scopes), safe='') + '&redirect_uri=' + quote(ONCALL['consentPage'], safe='')
             + '&state=oncall.' + entry['key'])
 def oncall_app(entry, above=''):
-    names = entry['scopes'] + entry.get('ownScopes', [])
+    names = entry['scopes'] + entry.get('ownScopes', []) + entry.get('serviceScopes', [])
     word = 'permission' if len(names) == 1 else 'permissions'
     items = ''.join('<li><code>' + html.escape(n) + '</code></li>' for n in names)
     name = html.escape(entry['name'])
@@ -43,6 +45,7 @@ ONCALL_HTML = ("""<section id="oncall">
     + ''.join(oncall_app(_app[k]) for k in ('roleActivation', 'deviceActions', 'userActions', 'accountRecovery', 'groupMembership'))
     + oncall_app(_app['actions'], "<p>With this one app, turning on any action in TenantKeep gives the phone a token that carries every action permission listed here. A person's own roles still decide what they can do.</p>")
     + oncall_app(_app['alerts'])
+    + oncall_app(_app['appProtection'], '<p><strong>Only if you protect apps with Microsoft Intune.</strong> It lets an app protection policy reach TenantKeep on a phone you do not manage. Its one permission is on Microsoft\'s app management service and gives no access to your directory. Leave it out otherwise.</p>')
     + """<h3>If your organization used LAPSlock</h3>
 <p>It approved an earlier app that is now TenantKeep Actions. After the update everything keeps working through it. Approve the read-only app, TenantKeep, at the top of this list to finish the move.</p>
 </section>
